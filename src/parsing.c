@@ -90,6 +90,27 @@ OpStack parseInput(char *input) {
 			OpStack_push(&output, &temp);
 		} else if (*current == ' ') {
 			current++;
+		} else if (*current == '+' || *current == '-') {
+			// Look for the last character that isn't whitespace
+			char *lastOp = current - 1;
+			while (*lastOp == ' ') lastOp--;
+
+			// Checks if the + or - is an operator or part of an operand
+			if (isdigit(*lastOp)) {
+				Op temp = {
+					.isOperator = true,
+					.data = parseOperator(*current++)
+				};
+
+				pushOperator(&operatorStack, &output, &temp);
+			} else {
+				Op temp = {
+					.isOperator = false,
+					.data = strtol(current, &current, 10)
+				};
+
+				OpStack_push(&output, &temp);
+			}
 		} else if (*current == '(') {
 			// Look for the last character that isn't whitespace
 			char *lastOp = current - 1;
