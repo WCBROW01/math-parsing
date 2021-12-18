@@ -45,6 +45,24 @@ long parseOperator(const char operator) {
 	}
 }
 
+void pushOperator(OpStack *operatorStack, OpStack *outputStack, Op *operator) {
+	if (operatorStack->length == 0) OpStack_push(operatorStack, operator);
+	else if (operatorStack->length > 0) {
+		/* If anything in the operator stack has a higher precedence and isn't a
+		 * parenthesis, pop it from the stack and push it to the output. */
+		while (operatorStack->length > 0 &&
+			   getOperatorPrecedence(OpStack_peek(operatorStack)) < 3 &&
+			   getOperatorPrecedence(OpStack_peek(operatorStack)) >=
+			   getOperatorPrecedence(*operator))
+		{
+			Op temp = OpStack_pop(operatorStack);
+			OpStack_push(outputStack, &temp);
+		}
+
+		OpStack_push(operatorStack, operator);
+	}
+}
+
 OpStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
@@ -84,7 +102,7 @@ OpStack parseInput(char *input) {
 					.data = MUL
 				};
 
-				OpStack_push(&operatorStack, &temp);
+				pushOperator(&operatorStack, &output, &temp);
 			}
 
 			Op temp = {
@@ -92,7 +110,7 @@ OpStack parseInput(char *input) {
 				.data = OPEN_PAREN
 			};
 
-			OpStack_push(&operatorStack, &temp);
+			pushOperator(&operatorStack, &output, &temp);
 			hangingParenthesis++;
 			current++;
 		} else if (*current == ')') {
@@ -121,7 +139,7 @@ OpStack parseInput(char *input) {
 					.data = MUL
 				};
 
-				OpStack_push(&operatorStack, &temp);
+				pushOperator(&operatorStack, &output, &temp);
 			}
 
 			hangingParenthesis--;
@@ -132,21 +150,7 @@ OpStack parseInput(char *input) {
 				.data = parseOperator(*current++)
 			};
 
-			if (operatorStack.length == 0) OpStack_push(&operatorStack, &temp);
-			else if (operatorStack.length > 0) {
-				/* If anything in the operator stack has a higher precedence and isn't a
-				 * parenthesis, pop it from the stack and push it to the output. */
-				while (operatorStack.length > 0 &&
-					   getOperatorPrecedence(OpStack_peek(&operatorStack)) < 3 &&
-					   getOperatorPrecedence(OpStack_peek(&operatorStack)) >=
-					   getOperatorPrecedence(temp))
-				{
-					Op operator = OpStack_pop(&operatorStack);
-					OpStack_push(&output, &operator);
-				}
-
-				OpStack_push(&operatorStack, &temp);
-			}
+			pushOperator(&operatorStack, &output, &temp);
 		}
 	}
 
