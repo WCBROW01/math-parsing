@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "opdeque.h"
+#include "opstack.h"
 
 int getOperatorPrecedence(const Op operator) {
 	switch(operator.data) {
@@ -45,11 +45,11 @@ long parseOperator(const char operator) {
 	}
 }
 
-OpDeque parseInput(char *input) {
+OpStack parseInput(char *input) {
 	char *current = input;
 
-	OpDeque output = OpDeque_new();
-	OpDeque opStack = OpDeque_new();
+	OpStack output = OpStack_new();
+	OpStack operatorStack = OpStack_new();
 
 	// Account for leading +/- signs
 	if (*current == '+' || *current == '-') {
@@ -58,7 +58,7 @@ OpDeque parseInput(char *input) {
 			.data = strtol(current, &current, 10)
 		};
 
-		OpDeque_push(&output, &temp);
+		OpStack_push(&output, &temp);
 	}
 
 	while (*current != '\0') {
@@ -68,7 +68,7 @@ OpDeque parseInput(char *input) {
 				.data = strtol(current, &current, 10)
 			};
 
-			OpDeque_push(&output, &temp);
+			OpStack_push(&output, &temp);
 		} else if (*current == '(') {
 			// If there is a digit before the parenthesis, imply multiplication.
 			if (input != current && isdigit(*(current - 1))) {
@@ -77,7 +77,7 @@ OpDeque parseInput(char *input) {
 					.data = MUL
 				};
 
-				OpDeque_push(&opStack, &temp);
+				OpStack_push(&operatorStack, &temp);
 			}
 
 			Op temp = {
@@ -85,17 +85,17 @@ OpDeque parseInput(char *input) {
 				.data = OPEN_PAREN
 			};
 
-			OpDeque_push(&opStack, &temp);
+			OpStack_push(&operatorStack, &temp);
 			current++;
 		} else if (*current == ')') {
 			// Pop everything within the parenthesis into the output stack
-			while (OpDeque_peekBack(&opStack).data != OPEN_PAREN) {
-				Op operator = OpDeque_popBack(&opStack);
-				OpDeque_push(&output, &operator);
+			while (OpStack_peek(&operatorStack).data != OPEN_PAREN) {
+				Op operator = OpStack_pop(&operatorStack);
+				OpStack_push(&output, &operator);
 			}
 
 			// Pop the opening parenthesis
-			OpDeque_popBack(&opStack);
+			OpStack_pop(&operatorStack);
 
 			// If there is a digit after the parenthesis, imply multiplication.
 			if (isdigit(*(current + 1))) {
@@ -104,7 +104,7 @@ OpDeque parseInput(char *input) {
 					.data = MUL
 				};
 
-				OpDeque_push(&opStack, &temp);
+				OpStack_push(&operatorStack, &temp);
 			}
 
 			current++;
@@ -114,32 +114,32 @@ OpDeque parseInput(char *input) {
 				.data = parseOperator(*current++)
 			};
 
-			if (opStack.length == 0) OpDeque_push(&opStack, &temp);
-			else if (opStack.length > 0) {
+			if (operatorStack.length == 0) OpStack_push(&operatorStack, &temp);
+			else if (operatorStack.length > 0) {
 				/* If anything in the operator stack has a higher precedence and isn't a
 				 * parenthesis, pop it from the stack and push it to the output. */
-				while (opStack.length > 0 &&
-					   getOperatorPrecedence(OpDeque_peekBack(&opStack)) < 3 &&
-					   getOperatorPrecedence(OpDeque_peekBack(&opStack)) >=
+				while (operatorStack.length > 0 &&
+					   getOperatorPrecedence(OpStack_peek(&operatorStack)) < 3 &&
+					   getOperatorPrecedence(OpStack_peek(&operatorStack)) >=
 					   getOperatorPrecedence(temp))
 				{
-					Op operator = OpDeque_popBack(&opStack);
-					OpDeque_push(&output, &operator);
+					Op operator = OpStack_pop(&operatorStack);
+					OpStack_push(&output, &operator);
 				}
 
-				OpDeque_push(&opStack, &temp);
+				OpStack_push(&operatorStack, &temp);
 			}
 		}
 	}
 
 	// Pop everything remaining in the operator stack into the output
-	while (opStack.length > 0) {
-		Op operator = OpDeque_popBack(&opStack);
-		OpDeque_push(&output, &operator);
+	while (operatorStack.length > 0) {
+		Op operator = OpStack_pop(&operatorStack);
+		OpStack_push(&output, &operator);
 	}
 
-	OpDeque_print(&output);
-	OpDeque_delete(&opStack);
+	OpStack_print(&output);
+	OpStack_delete(&operatorStack);
 
 	return output;
 }

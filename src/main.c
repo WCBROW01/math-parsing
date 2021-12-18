@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "opdeque.h"
+#include "opstack.h"
 #include "parsing.h"
 
 #define DEFAULT_MAXLEN 64
