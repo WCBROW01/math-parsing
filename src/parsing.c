@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "opstack.h"
 
-int getOperatorPrecedence(const Op operator) {
+static int getOperatorPrecedence(const Op operator) {
 	switch(operator.data) {
 	case ADD:
 	case SUB:
@@ -23,7 +23,7 @@ int getOperatorPrecedence(const Op operator) {
 	}
 }
 
-long parseOperator(const char operator) {
+static long parseOperator(const char operator) {
 	switch(operator) {
 	case '+':
 		return ADD;
@@ -45,7 +45,7 @@ long parseOperator(const char operator) {
 	}
 }
 
-void pushOperator(OpStack *operatorStack, OpStack *outputStack, Op *operator) {
+static void pushOperator(OpStack *operatorStack, OpStack *outputStack, Op *operator) {
 	if (operatorStack->length == 0) OpStack_push(operatorStack, operator);
 	else if (operatorStack->length > 0) {
 		/* If anything in the operator stack has a higher precedence and isn't a
