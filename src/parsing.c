@@ -44,6 +44,7 @@ long parseOperator(const char operator) {
 		exit(2);
 	}
 }
+
 OpStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
