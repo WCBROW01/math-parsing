@@ -45,18 +45,18 @@ static long parseOperator(const char operator) {
 	}
 }
 
-static void pushOperator(OpStack *operatorStack, OpStack *outputStack, Op *operator) {
+static void pushOperator(OpStack *operatorStack, OpStack *outputStackStack, Op *operator) {
 	if (operatorStack->length == 0) OpStack_push(operatorStack, operator);
 	else if (operatorStack->length > 0) {
 		/* If anything in the operator stack has a higher precedence and isn't a
-		 * parenthesis, pop it from the stack and push it to the output. */
+		 * parenthesis, pop it from the stack and push it to the outputStack. */
 		while (operatorStack->length > 0 &&
 			   getOperatorPrecedence(OpStack_peek(operatorStack)) < 3 &&
 			   getOperatorPrecedence(OpStack_peek(operatorStack)) >=
 			   getOperatorPrecedence(*operator))
 		{
 			Op temp = OpStack_pop(operatorStack);
-			OpStack_push(outputStack, &temp);
+			OpStack_push(outputStackStack, &temp);
 		}
 
 		OpStack_push(operatorStack, operator);
@@ -67,7 +67,7 @@ OpStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
 
-	OpStack output = OpStack_new();
+	OpStack outputStack = OpStack_new();
 	OpStack operatorStack = OpStack_new();
 
 	// Account for leading +/- signs
@@ -77,7 +77,7 @@ OpStack parseInput(char *input) {
 			.data = strtol(current, &current, 10)
 		};
 
-		OpStack_push(&output, &temp);
+		OpStack_push(&outputStack, &temp);
 	}
 
 	while (*current != '\0') {
@@ -87,7 +87,7 @@ OpStack parseInput(char *input) {
 				.data = strtol(current, &current, 10)
 			};
 
-			OpStack_push(&output, &temp);
+			OpStack_push(&outputStack, &temp);
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
@@ -102,14 +102,14 @@ OpStack parseInput(char *input) {
 					.data = parseOperator(*current++)
 				};
 
-				pushOperator(&operatorStack, &output, &temp);
+				pushOperator(&operatorStack, &outputStack, &temp);
 			} else {
 				Op temp = {
 					.isOperator = false,
 					.data = strtol(current, &current, 10)
 				};
 
-				OpStack_push(&output, &temp);
+				OpStack_push(&outputStack, &temp);
 			}
 		} else if (*current == '(') {
 			// Look for the last character that isn't whitespace
@@ -123,7 +123,7 @@ OpStack parseInput(char *input) {
 					.data = MUL
 				};
 
-				pushOperator(&operatorStack, &output, &temp);
+				pushOperator(&operatorStack, &outputStack, &temp);
 			}
 
 			Op temp = {
@@ -140,10 +140,10 @@ OpStack parseInput(char *input) {
 				exit(3);
 			}
 
-			// Pop everything within the parenthesis into the output stack
+			// Pop everything within the parenthesis into the outputStack stack
 			while (OpStack_peek(&operatorStack).data != OPEN_PAREN) {
 				Op operator = OpStack_pop(&operatorStack);
-				OpStack_push(&output, &operator);
+				OpStack_push(&outputStack, &operator);
 			}
 
 			// Pop the opening parenthesis
@@ -160,7 +160,7 @@ OpStack parseInput(char *input) {
 					.data = MUL
 				};
 
-				pushOperator(&operatorStack, &output, &temp);
+				pushOperator(&operatorStack, &outputStack, &temp);
 			}
 
 			hangingParenthesis--;
@@ -171,7 +171,7 @@ OpStack parseInput(char *input) {
 				.data = parseOperator(*current++)
 			};
 
-			pushOperator(&operatorStack, &output, &temp);
+			pushOperator(&operatorStack, &outputStack, &temp);
 		}
 	}
 
@@ -180,13 +180,13 @@ OpStack parseInput(char *input) {
 		exit(3);
 	}
 
-	// Pop everything remaining in the operator stack into the output
+	// Pop everything remaining in the operator stack into the outputStack
 	while (operatorStack.length > 0) {
 		Op operator = OpStack_pop(&operatorStack);
-		OpStack_push(&output, &operator);
+		OpStack_push(&outputStack, &operator);
 	}
 
 	OpStack_delete(&operatorStack);
 
-	return output;
+	return outputStack;
 }
