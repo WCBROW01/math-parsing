@@ -60,7 +60,7 @@ char operatorToChar(const Op *operator) {
 
 void OpStack_print(const OpStack *stack) {
 	for (int i = 0; i <= stack->top; i++) {
-		if (stack->ops[i % MAX_LENGTH].isOperator) {
+		if (stack->ops[i].isOperator) {
 			printf("%c ", operatorToChar(&stack->ops[i]));
 		} else {
 			printf("%ld ", stack->ops[i].data);
