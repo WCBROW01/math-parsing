@@ -110,7 +110,7 @@ OpStack parseInput(char *input) {
 				.data = OPEN_PAREN
 			};
 
-			pushOperator(&operatorStack, &output, &temp);
+			OpStack_push(&operatorStack, &temp);
 			hangingParenthesis++;
 			current++;
 		} else if (*current == ')') {
