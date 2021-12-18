@@ -31,8 +31,13 @@ int main(void) {
 
 	printf("Provided input: %s\n", input);
 	OpStack parsedInput = parseInput(input);
+	printf("Parsed result in RPN: ");
+	OpStack_print(&output);
+
 	long answer = evaluateOpStack(&parsedInput);
 	printf("Answer: %ld\n", answer);
+
+	OpStack_delete(&parsedInput);
 	free(input);
 	return 0;
 }

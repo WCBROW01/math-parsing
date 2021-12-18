@@ -165,7 +165,6 @@ OpStack parseInput(char *input) {
 		OpStack_push(&output, &operator);
 	}
 
-	OpStack_print(&output);
 	OpStack_delete(&operatorStack);
 
 	return output;
