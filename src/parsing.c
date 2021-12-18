@@ -47,6 +47,7 @@ long parseOperator(const char operator) {
 
 OpStack parseInput(char *input) {
 	char *current = input;
+	int hangingParenthesis = 0;
 
 	OpStack output = OpStack_new();
 	OpStack operatorStack = OpStack_new();
@@ -86,8 +87,14 @@ OpStack parseInput(char *input) {
 			};
 
 			OpStack_push(&operatorStack, &temp);
+			hangingParenthesis++;
 			current++;
 		} else if (*current == ')') {
+			if (hangingParenthesis == 0) {
+				printf("Invalid expression: You are closing one or more parenthesis that don't exist!\n");
+				exit(3);
+			}
+
 			// Pop everything within the parenthesis into the output stack
 			while (OpStack_peek(&operatorStack).data != OPEN_PAREN) {
 				Op operator = OpStack_pop(&operatorStack);
@@ -107,6 +114,7 @@ OpStack parseInput(char *input) {
 				OpStack_push(&operatorStack, &temp);
 			}
 
+			hangingParenthesis--;
 			current++;
 		} else {
 			Op temp = {
@@ -130,6 +138,11 @@ OpStack parseInput(char *input) {
 				OpStack_push(&operatorStack, &temp);
 			}
 		}
+	}
+
+	if (hangingParenthesis > 0) {
+		printf("Invalid expression: You have %d unclosed parenthesis.\n", hangingParenthesis);
+		exit(3);
 	}
 
 	// Pop everything remaining in the operator stack into the output
