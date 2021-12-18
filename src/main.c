@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "opstack.h"
 #include "parsing.h"
+#include "eval.h"
 
 #define DEFAULT_MAXLEN 64
 
@@ -29,7 +30,9 @@ int main(void) {
 	input[numChars] = '\0';
 
 	printf("Provided input: %s\n", input);
-	parseInput(input);
+	OpStack parsedInput = parseInput(input);
+	long answer = evaluateOpStack(&parsedInput);
+	printf("Answer: %ld\n", answer);
 	free(input);
 	return 0;
 }
