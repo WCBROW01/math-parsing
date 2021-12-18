@@ -44,7 +44,6 @@ long parseOperator(const char operator) {
 		exit(2);
 	}
 }
-
 OpStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
@@ -70,9 +69,15 @@ OpStack parseInput(char *input) {
 			};
 
 			OpStack_push(&output, &temp);
+		} else if (*current == ' ') {
+			current++;
 		} else if (*current == '(') {
+			// Look for the last character that isn't whitespace
+			char *lastOp = current - 1;
+			while (*lastOp == ' ') lastOp--;
+
 			// If there is a digit before the parenthesis, imply multiplication.
-			if (input != current && isdigit(*(current - 1))) {
+			if (input != current && isdigit(*lastOp)) {
 				Op temp = {
 					.isOperator = true,
 					.data = MUL
@@ -104,8 +109,12 @@ OpStack parseInput(char *input) {
 			// Pop the opening parenthesis
 			OpStack_pop(&operatorStack);
 
+			// Look for the next character that isn't whitespace
+			char *nextOp = current + 1;
+			while (*nextOp == ' ') nextOp++;
+
 			// If there is a digit after the parenthesis, imply multiplication.
-			if (isdigit(*(current + 1))) {
+			if (isdigit(*nextOp)) {
 				Op temp = {
 					.isOperator = true,
 					.data = MUL
