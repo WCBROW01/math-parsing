@@ -1,27 +1,16 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "opstack.h"
 #include "eval.h"
-
-static long long_pow(const long base, const long exp) {
-	// base^0 is always 1.
-	if (exp == 0L) return 1L;
-
-	long result = base;
-	for (long i = 1L; i < exp; i++) {
-		result *= base;
-	}
-
-	return result;
-}
 
 static Op performOperation(const Op *operator, const Op *a, const Op *b) {
 	Op temp = {
 		.isOperator = true
 	};
 
-	switch(operator->data) {
+	switch((int) operator->data) {
 	case ADD:
 		temp.data = a->data + b->data;
 		break;
@@ -35,17 +24,17 @@ static Op performOperation(const Op *operator, const Op *a, const Op *b) {
 		temp.data = a->data / b->data;
 		break;
 	case EXP:
-		temp.data = long_pow(a->data, b->data);
+		temp.data = powl(a->data, b->data);
 		break;
 	default:
-		fprintf(stderr, "Invalid operator '%ld'.\n", operator->data);
+		fprintf(stderr, "Invalid operator '%Lf'.\n", operator->data);
 		exit(2);
 	}
 
 	return temp;
 }
 
-long evaluateOpStack(OpStack *input) {
+long double evaluateOpStack(OpStack *input) {
 	OpStack evalStack = OpStack_new();
 
 	for (int i = 0; i < input->length; i++) {
@@ -64,7 +53,7 @@ long evaluateOpStack(OpStack *input) {
 		}
 	}
 
-	long result = OpStack_pop(&evalStack).data;
+	long double result = OpStack_pop(&evalStack).data;
 	OpStack_delete(&evalStack);
 
 	return result;

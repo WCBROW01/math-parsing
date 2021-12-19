@@ -3,6 +3,6 @@
 
 #include "opstack.h"
 
-extern long evaluateOpStack(OpStack *input);
+extern long double evaluateOpStack(OpStack *input);
 
 #endif

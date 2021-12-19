@@ -34,8 +34,8 @@ int main(void) {
 	printf("Parsed result in RPN: ");
 	OpStack_print(&parsedInput);
 
-	long answer = evaluateOpStack(&parsedInput);
-	printf("Answer: %ld\n", answer);
+	long double answer = evaluateOpStack(&parsedInput);
+	printf("Answer: %Lf\n", answer);
 
 	OpStack_delete(&parsedInput);
 	free(input);

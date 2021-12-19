@@ -15,7 +15,7 @@
 // Struct for operators and operands (with a boolean to differentiate)
 typedef struct {
 	bool isOperator;
-	long data;
+	long double data;
 } Op;
 
 typedef struct {

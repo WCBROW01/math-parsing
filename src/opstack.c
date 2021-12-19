@@ -37,7 +37,7 @@ Op OpStack_peek(const OpStack *stack) {
 }
 
 char operatorToChar(const Op *operator) {
-	switch(operator->data) {
+	switch((int) operator->data) {
 	case ADD:
 		return '+';
 	case SUB:
@@ -53,7 +53,7 @@ char operatorToChar(const Op *operator) {
 	case CLOSE_PAREN:
 		return ')';
 	default:
-		fprintf(stderr, "Invalid operator '%ld'.\n", operator->data);
+		fprintf(stderr, "Invalid operator '%Lf'.\n", operator->data);
 		exit(2);
 	}
 }
@@ -63,7 +63,7 @@ void OpStack_print(const OpStack *stack) {
 		if (stack->ops[i].isOperator) {
 			printf("%c ", operatorToChar(&stack->ops[i]));
 		} else {
-			printf("%ld ", stack->ops[i].data);
+			printf("%Lf ", stack->ops[i].data);
 		}
 	}
 

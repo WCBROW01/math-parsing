@@ -5,7 +5,7 @@
 #include "opstack.h"
 
 static int getOperatorPrecedence(const Op operator) {
-	switch(operator.data) {
+	switch((int) operator.data) {
 	case ADD:
 	case SUB:
 		return 0;
@@ -18,12 +18,12 @@ static int getOperatorPrecedence(const Op operator) {
 	case CLOSE_PAREN:
 		return 3;
 	default:
-		fprintf(stderr, "Invalid operator '%ld'.\n", operator.data);
+		fprintf(stderr, "Invalid operator '%Lf'.\n", operator.data);
 		exit(2);
 	}
 }
 
-static long parseOperator(const char operator) {
+static long double parseOperator(const char operator) {
 	switch(operator) {
 	case '+':
 		return ADD;
@@ -74,7 +74,7 @@ OpStack parseInput(char *input) {
 	if (*current == '+' || *current == '-') {
 		Op temp = {
 			.isOperator = false,
-			.data = strtol(current, &current, 10)
+			.data = strtold(current, &current)
 		};
 
 		OpStack_push(&outputStack, &temp);
@@ -84,7 +84,7 @@ OpStack parseInput(char *input) {
 		if (isdigit(*current)) {
 			Op temp = {
 				.isOperator = false,
-				.data = strtol(current, &current, 10)
+				.data = strtold(current, &current)
 			};
 
 			OpStack_push(&outputStack, &temp);
@@ -106,7 +106,7 @@ OpStack parseInput(char *input) {
 			} else {
 				Op temp = {
 					.isOperator = false,
-					.data = strtol(current, &current, 10)
+					.data = strtold(current, &current)
 				};
 
 				OpStack_push(&outputStack, &temp);
