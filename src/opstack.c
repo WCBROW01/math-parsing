@@ -53,7 +53,7 @@ char operatorToChar(const Op *operator) {
 	case CLOSE_PAREN:
 		return ')';
 	default:
-		fprintf(stderr, "Invalid operator '%Lf'.\n", operator->data);
+		fprintf(stderr, "Invalid operator '%Lg'.\n", operator->data);
 		exit(2);
 	}
 }
@@ -63,7 +63,7 @@ void OpStack_print(const OpStack *stack) {
 		if (stack->ops[i].isOperator) {
 			printf("%c ", operatorToChar(&stack->ops[i]));
 		} else {
-			printf("%Lf ", stack->ops[i].data);
+			printf("%Lg ", stack->ops[i].data);
 		}
 	}
 

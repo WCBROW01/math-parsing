@@ -27,7 +27,7 @@ static Op performOperation(const Op *operator, const Op *a, const Op *b) {
 		temp.data = powl(a->data, b->data);
 		break;
 	default:
-		fprintf(stderr, "Invalid operator '%Lf'.\n", operator->data);
+		fprintf(stderr, "Invalid operator '%Lg'.\n", operator->data);
 		exit(2);
 	}
 

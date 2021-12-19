@@ -18,7 +18,7 @@ static int getOperatorPrecedence(const Op operator) {
 	case CLOSE_PAREN:
 		return 3;
 	default:
-		fprintf(stderr, "Invalid operator '%Lf'.\n", operator.data);
+		fprintf(stderr, "Invalid operator '%Lg'.\n", operator.data);
 		exit(2);
 	}
 }
