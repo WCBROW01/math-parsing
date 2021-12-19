@@ -35,7 +35,7 @@ int main(void) {
 	OpStack_print(&parsedInput);
 
 	long double answer = evaluateOpStack(&parsedInput);
-	printf("Answer: %Lg\n", answer);
+	printf("Answer: %.18Lg\n", answer);
 
 	OpStack_delete(&parsedInput);
 	free(input);
