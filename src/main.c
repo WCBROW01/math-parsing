@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "opstack.h"
 #include "parsing.h"
 #include "eval.h"
@@ -11,33 +12,41 @@ int main(void) {
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
 
-	printf("Enter the expression you would like to evaluate: ");
+	printf("Enter any expressions you would like to evaluate (type \"exit\" to quit):\n");
 
-	char c = EOF;
-	int numChars = 0;
+	for (;;) {
+		char c = EOF;
+		int numChars = 0;
 
-	// Get user input character by character until a newline is encountered
-	while ((c = getchar()) != '\n' && c != EOF) {
-		input[numChars++] = c;
+		printf("> ");
 
-		// Realloc if string is not large enough
-		if (numChars == inputMax) {
-			inputMax += DEFAULT_MAXLEN;
-			input = realloc(input, inputMax * sizeof(char));
+		// Get user input character by character until a newline is encountered
+		while ((c = getchar()) != '\n' && c != EOF) {
+			input[numChars++] = c;
+
+			// Realloc if string is not large enough
+			if (numChars == inputMax) {
+				inputMax += DEFAULT_MAXLEN;
+				input = realloc(input, inputMax * sizeof(char));
+			}
 		}
+
+		input[numChars] = '\0';
+		char *beginning = input;
+		while (*beginning == ' ') beginning++;
+		if (strncmp(beginning, "exit", 4) == 0) exit(0);
+
+		printf("Provided input: %s\n", input);
+		OpStack parsedInput = parseInput(beginning);
+		printf("Parsed result in RPN: ");
+		OpStack_print(&parsedInput);
+
+		long double answer = evaluateOpStack(&parsedInput);
+		printf("Answer: %.15Lg\n", answer);
+
+		OpStack_delete(&parsedInput);
 	}
 
-	input[numChars] = '\0';
-
-	printf("Provided input: %s\n", input);
-	OpStack parsedInput = parseInput(input);
-	printf("Parsed result in RPN: ");
-	OpStack_print(&parsedInput);
-
-	long double answer = evaluateOpStack(&parsedInput);
-	printf("Answer: %.15Lg\n", answer);
-
-	OpStack_delete(&parsedInput);
 	free(input);
 	return 0;
 }
