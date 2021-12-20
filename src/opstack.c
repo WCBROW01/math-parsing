@@ -3,40 +3,40 @@
 #include <stdlib.h>
 #include "opstack.h"
 
-OpStack OpStack_new() {
-	OpStack stack = {
+TokenStack TokenStack_new() {
+	TokenStack stack = {
 		.length = 0,
 		.top = -1,
-		.ops = malloc(MAX_LENGTH * sizeof(Op))
+		.ops = malloc(MAX_LENGTH * sizeof(Token))
 	};
 
 	if (stack.ops == NULL) {
-		fprintf(stderr, "Failed to create OpStack, exiting.\n");
+		fprintf(stderr, "Failed to create TokenStack, exiting.\n");
 		exit(1);
 	}
 
 	return stack;
 }
 
-void OpStack_delete(OpStack *stack) {
+void TokenStack_delete(TokenStack *stack) {
 	free(stack->ops);
 }
 
-void OpStack_push(OpStack *stack, const Op *data) {
+void TokenStack_push(TokenStack *stack, const Token *data) {
 	assert(++stack->length <= 64 && "Error: You have too many items in the stack.");
 	stack->ops[++stack->top] = *data;
 }
 
-Op OpStack_pop(OpStack *stack) {
+Token TokenStack_pop(TokenStack *stack) {
 	assert(--stack->length >= 0 && "Error: You have popped more items than are in the stack.");
 	return stack->ops[stack->top--];
 }
 
-Op OpStack_peek(const OpStack *stack) {
+Token TokenStack_peek(const TokenStack *stack) {
 	return stack->ops[stack->top];
 }
 
-char operatorToChar(const Op *operator) {
+char operatorToChar(const Token *operator) {
 	switch((int) operator->data) {
 	case ADD:
 		return '+';
@@ -58,7 +58,7 @@ char operatorToChar(const Op *operator) {
 	}
 }
 
-void OpStack_print(const OpStack *stack) {
+void TokenStack_print(const TokenStack *stack) {
 	for (int i = 0; i <= stack->top; i++) {
 		if (stack->ops[i].isOperator) {
 			printf("%c ", operatorToChar(&stack->ops[i]));

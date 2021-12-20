@@ -16,22 +16,22 @@
 typedef struct {
 	bool isOperator;
 	long double data;
-} Op;
+} Token;
 
 typedef struct {
 	int length;
 	int top;
-	Op *ops;
-} OpStack;
+	Token *ops;
+} TokenStack;
 
-extern OpStack OpStack_new();
-extern void OpStack_delete(OpStack *stack);
+extern TokenStack TokenStack_new();
+extern void TokenStack_delete(TokenStack *stack);
 
-extern void OpStack_push(OpStack *stack, const Op *data);
-extern Op OpStack_pop(OpStack *stack);
-extern Op OpStack_peek(const OpStack *stack);
+extern void TokenStack_push(TokenStack *stack, const Token *data);
+extern Token TokenStack_pop(TokenStack *stack);
+extern Token TokenStack_peek(const TokenStack *stack);
 
-extern char operatorToChar(const Op *operator);
-extern void OpStack_print(const OpStack *stack);
+extern char operatorToChar(const Token *operator);
+extern void TokenStack_print(const TokenStack *stack);
 
 #endif

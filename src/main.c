@@ -37,14 +37,14 @@ int main(void) {
 		if (strncmp(beginning, "exit", 4) == 0) exit(0);
 
 		printf("Provided input: %s\n", input);
-		OpStack parsedInput = parseInput(beginning);
+		TokenStack parsedInput = parseInput(beginning);
 		printf("Parsed result in RPN: ");
-		OpStack_print(&parsedInput);
+		TokenStack_print(&parsedInput);
 
 		long double answer = evaluateOpStack(&parsedInput);
 		printf("Answer: %.15Lg\n", answer);
 
-		OpStack_delete(&parsedInput);
+		TokenStack_delete(&parsedInput);
 	}
 
 	free(input);

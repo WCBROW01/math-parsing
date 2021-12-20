@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "opstack.h"
 
-static int getOperatorPrecedence(const Op operator) {
+static int getOperatorPrecedence(const Token operator) {
 	switch((int) operator.data) {
 	case ADD:
 	case SUB:
@@ -45,44 +45,44 @@ static long double parseOperator(const char operator) {
 	}
 }
 
-static void pushOperator(OpStack *operatorStack, OpStack *outputStack, long double operator) {	
-	Op newOperator = {
+static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, long double operator) {	
+	Token newOperator = {
 		.isOperator = true,
 		.data = operator
 	};
 
-	if (operatorStack->length == 0) OpStack_push(operatorStack, &newOperator);
+	if (operatorStack->length == 0) TokenStack_push(operatorStack, &newOperator);
 	else if (operatorStack->length > 0) {
 		/* If anything in the operator stack has a higher precedence and isn't a
 		 * parenthesis, pop it from the stack and push it to the outputStack. */
 		while (operatorStack->length > 0 &&
-			   getOperatorPrecedence(OpStack_peek(operatorStack)) < 3 &&
-			   getOperatorPrecedence(OpStack_peek(operatorStack)) >=
+			   getOperatorPrecedence(TokenStack_peek(operatorStack)) < 3 &&
+			   getOperatorPrecedence(TokenStack_peek(operatorStack)) >=
 			   getOperatorPrecedence(newOperator))
 		{
-			Op temp = OpStack_pop(operatorStack);
-			OpStack_push(outputStack, &temp);
+			Token temp = TokenStack_pop(operatorStack);
+			TokenStack_push(outputStack, &temp);
 		}
 
-		OpStack_push(operatorStack, &newOperator);
+		TokenStack_push(operatorStack, &newOperator);
 	}
 }
 
-OpStack parseInput(char *input) {
+TokenStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
 
-	OpStack outputStack = OpStack_new();
-	OpStack operatorStack = OpStack_new();
+	TokenStack outputStack = TokenStack_new();
+	TokenStack operatorStack = TokenStack_new();
 
 	while (*current != '\0') {
 		if (isdigit(*current)) {
-			Op temp = {
+			Token temp = {
 				.isOperator = false,
 				.data = strtold(current, &current)
 			};
 
-			OpStack_push(&outputStack, &temp);
+			TokenStack_push(&outputStack, &temp);
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
@@ -97,12 +97,12 @@ OpStack parseInput(char *input) {
 			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {			
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			} else {
-				Op temp = {
+				Token temp = {
 					.isOperator = false,
 					.data = strtold(current, &current)
 				};
 
-				OpStack_push(&outputStack, &temp);
+				TokenStack_push(&outputStack, &temp);
 			}
 		} else if (*current == '(') {
 			if (input != current) {
@@ -133,13 +133,13 @@ OpStack parseInput(char *input) {
 			}
 
 			// Pop everything within the parenthesis into the outputStack stack
-			while (OpStack_peek(&operatorStack).data != OPEN_PAREN) {
-				Op operator = OpStack_pop(&operatorStack);
-				OpStack_push(&outputStack, &operator);
+			while (TokenStack_peek(&operatorStack).data != OPEN_PAREN) {
+				Token operator = TokenStack_pop(&operatorStack);
+				TokenStack_push(&outputStack, &operator);
 			}
 
 			// Pop the opening parenthesis
-			OpStack_pop(&operatorStack);
+			TokenStack_pop(&operatorStack);
 
 			// Look for the next character that isn't whitespace
 			char *nextOp = current + 1;
@@ -169,11 +169,11 @@ OpStack parseInput(char *input) {
 
 	// Pop everything remaining in the operator stack into the outputStack
 	while (operatorStack.length > 0) {
-		Op operator = OpStack_pop(&operatorStack);
-		OpStack_push(&outputStack, &operator);
+		Token operator = TokenStack_pop(&operatorStack);
+		TokenStack_push(&outputStack, &operator);
 	}
 
-	OpStack_delete(&operatorStack);
+	TokenStack_delete(&operatorStack);
 
 	return outputStack;
 }

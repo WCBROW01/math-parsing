@@ -3,6 +3,6 @@
 
 #include "opstack.h"
 
-extern OpStack parseInput(char *input);
+extern TokenStack parseInput(char *input);
 
 #endif
