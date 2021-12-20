@@ -133,6 +133,9 @@ OpStack parseInput(char *input) {
 			if (hangingParenthesis == 0) {
 				printf("Invalid expression: You are closing one or more parenthesis that don't exist!\n");
 				exit(3);
+			} else if (OpStack_peek(&operatorStack).data == OPEN_PAREN) {
+				printf("Invalid expression: You have an empty set of parenthesis!\n");
+				exit(3);
 			}
 
 			// Pop everything within the parenthesis into the outputStack stack
