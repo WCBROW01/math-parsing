@@ -70,16 +70,6 @@ OpStack parseInput(char *input) {
 	OpStack outputStack = OpStack_new();
 	OpStack operatorStack = OpStack_new();
 
-	// Account for leading +/- signs
-	if (*current == '+' || *current == '-') {
-		Op temp = {
-			.isOperator = false,
-			.data = strtold(current, &current)
-		};
-
-		OpStack_push(&outputStack, &temp);
-	}
-
 	while (*current != '\0') {
 		if (isdigit(*current)) {
 			Op temp = {
@@ -91,12 +81,15 @@ OpStack parseInput(char *input) {
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
-			// Look for the last character that isn't whitespace
-			char *lastOp = current - 1;
-			while (*lastOp == ' ') lastOp--;
+			char *lastOp;
+			if (input != current) {
+				// Look for the last character that isn't whitespace
+				lastOp = current - 1;
+				while (*lastOp == ' ') lastOp--;
+			} else lastOp = NULL; 
 
 			// Checks if the + or - is an operator or part of an operand
-			if (isdigit(*lastOp)) {
+			if (lastOp != NULL && isdigit(*lastOp)) {
 				Op temp = {
 					.isOperator = true,
 					.data = parseOperator(*current++)
@@ -112,18 +105,20 @@ OpStack parseInput(char *input) {
 				OpStack_push(&outputStack, &temp);
 			}
 		} else if (*current == '(') {
-			// Look for the last character that isn't whitespace
-			char *lastOp = current - 1;
-			while (*lastOp == ' ') lastOp--;
+			if (input != current) {
+				// Look for the last character that isn't whitespace
+				char *lastOp = current - 1;
+				while (*lastOp == ' ') lastOp--;
 
-			// If there is a digit before the parenthesis, imply multiplication.
-			if (input != current && isdigit(*lastOp)) {
-				Op temp = {
-					.isOperator = true,
-					.data = MUL
-				};
+				// If there is a digit before the parenthesis, imply multiplication.
+				if (isdigit(*lastOp)) {
+					Op temp = {
+						.isOperator = true,
+						.data = MUL
+					};
 
-				pushOperator(&operatorStack, &outputStack, &temp);
+					pushOperator(&operatorStack, &outputStack, &temp);
+				}
 			}
 
 			Op temp = {
