@@ -94,7 +94,7 @@ OpStack parseInput(char *input) {
 			} else lastOp = NULL; 
 
 			// Checks if the + or - is an operator or part of an operand
-			if (lastOp != NULL && isdigit(*lastOp)) {			
+			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {			
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			} else {
 				Op temp = {
