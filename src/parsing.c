@@ -45,21 +45,26 @@ static long double parseOperator(const char operator) {
 	}
 }
 
-static void pushOperator(OpStack *operatorStack, OpStack *outputStackStack, Op *operator) {
-	if (operatorStack->length == 0) OpStack_push(operatorStack, operator);
+static void pushOperator(OpStack *operatorStack, OpStack *outputStack, long double operator) {	
+	Op newOperator = {
+		.isOperator = true,
+		.data = operator
+	};
+
+	if (operatorStack->length == 0) OpStack_push(operatorStack, &newOperator);
 	else if (operatorStack->length > 0) {
 		/* If anything in the operator stack has a higher precedence and isn't a
 		 * parenthesis, pop it from the stack and push it to the outputStack. */
 		while (operatorStack->length > 0 &&
 			   getOperatorPrecedence(OpStack_peek(operatorStack)) < 3 &&
 			   getOperatorPrecedence(OpStack_peek(operatorStack)) >=
-			   getOperatorPrecedence(*operator))
+			   getOperatorPrecedence(newOperator))
 		{
 			Op temp = OpStack_pop(operatorStack);
-			OpStack_push(outputStackStack, &temp);
+			OpStack_push(outputStack, &temp);
 		}
 
-		OpStack_push(operatorStack, operator);
+		OpStack_push(operatorStack, &newOperator);
 	}
 }
 
@@ -89,13 +94,8 @@ OpStack parseInput(char *input) {
 			} else lastOp = NULL; 
 
 			// Checks if the + or - is an operator or part of an operand
-			if (lastOp != NULL && isdigit(*lastOp)) {
-				Op temp = {
-					.isOperator = true,
-					.data = parseOperator(*current++)
-				};
-
-				pushOperator(&operatorStack, &outputStack, &temp);
+			if (lastOp != NULL && isdigit(*lastOp)) {			
+				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			} else {
 				Op temp = {
 					.isOperator = false,
@@ -112,21 +112,10 @@ OpStack parseInput(char *input) {
 
 				// If there is a digit before the parenthesis, imply multiplication.
 				if (isdigit(*lastOp)) {
-					Op temp = {
-						.isOperator = true,
-						.data = MUL
-					};
-
-					pushOperator(&operatorStack, &outputStack, &temp);
+					pushOperator(&operatorStack, &outputStack, MUL);
 				}
 			}
-
-			Op temp = {
-				.isOperator = true,
-				.data = OPEN_PAREN
-			};
-
-			OpStack_push(&operatorStack, &temp);
+			pushOperator(&operatorStack, &outputStack, OPEN_PAREN);
 			hangingParenthesis++;
 			current++;
 		} else if (*current == ')') {
@@ -153,23 +142,13 @@ OpStack parseInput(char *input) {
 
 			// If there is a digit after the parenthesis, imply multiplication.
 			if (isdigit(*nextOp)) {
-				Op temp = {
-					.isOperator = true,
-					.data = MUL
-				};
-
-				pushOperator(&operatorStack, &outputStack, &temp);
+				pushOperator(&operatorStack, &outputStack, MUL);
 			}
 
 			hangingParenthesis--;
 			current++;
 		} else {
-			Op temp = {
-				.isOperator = true,
-				.data = parseOperator(*current++)
-			};
-
-			pushOperator(&operatorStack, &outputStack, &temp);
+			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 		}
 	}
 
