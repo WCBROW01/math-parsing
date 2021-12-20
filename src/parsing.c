@@ -122,9 +122,14 @@ OpStack parseInput(char *input) {
 			if (hangingParenthesis == 0) {
 				printf("Invalid expression: You are closing one or more parenthesis that don't exist!\n");
 				exit(3);
-			} else if (OpStack_peek(&operatorStack).data == OPEN_PAREN) {
-				printf("Invalid expression: You have an empty set of parenthesis!\n");
-				exit(3);
+			} else { 
+				char *lastOp = current - 1;
+				while (*lastOp == ' ') lastOp--;
+
+				if (*lastOp == '(') { 
+					printf("Invalid expression: You have an empty set of parenthesis!\n");
+					exit(3);
+				}
 			}
 
 			// Pop everything within the parenthesis into the outputStack stack
@@ -154,7 +159,7 @@ OpStack parseInput(char *input) {
 	
 	char *lastOp = current - 1;
 	while (*lastOp == ' ') lastOp--;
-	if (!isdigit(*lastOp) || *lastOp != ')') {
+	if (!isdigit(*lastOp) && *lastOp != ')') {
 		printf("Invalid expression: You have no second operand for '%c'.\n", *lastOp);
 		exit(4);
 	} else if (hangingParenthesis > 0) {
