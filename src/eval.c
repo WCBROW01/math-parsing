@@ -35,6 +35,8 @@ static Op performOperation(const Op *operator, const Op *a, const Op *b) {
 }
 
 long double evaluateOpStack(OpStack *input) {
+	if (input->length == 0) return NAN;
+
 	OpStack evalStack = OpStack_new();
 
 	for (int i = 0; i < input->length; i++) {
