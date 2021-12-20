@@ -151,8 +151,13 @@ OpStack parseInput(char *input) {
 			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 		}
 	}
-
-	if (hangingParenthesis > 0) {
+	
+	char *lastOp = current - 1;
+	while (*lastOp == ' ') lastOp--;
+	if (!isdigit(*lastOp) || *lastOp != ')') {
+		printf("Invalid expression: You have no second operand for '%c'.\n", *lastOp);
+		exit(4);
+	} else if (hangingParenthesis > 0) {
 		printf("Invalid expression: You have %d unclosed parenthesis.\n", hangingParenthesis);
 		exit(3);
 	}
