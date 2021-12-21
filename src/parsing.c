@@ -46,8 +46,7 @@ static Operator parseOperator(const char operator) {
 
 static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Operator operator) {	
 	Token newOperator = {
-		.op = operator,
-		.data = 0
+		.op = operator
 	};
 
 	if (operatorStack->length == 0) TokenStack_push(operatorStack, &newOperator);
@@ -67,6 +66,15 @@ static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Ope
 	}
 }
 
+static void pushOperand(TokenStack *outputStack, Token_t operand) {
+	Token temp = {
+		.op = None,
+		.data = operand
+	};
+
+	TokenStack_push(outputStack, &temp);
+}
+
 TokenStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
@@ -76,12 +84,7 @@ TokenStack parseInput(char *input) {
 
 	while (*current != '\0') {
 		if (isdigit(*current)) {
-			Token temp = {
-				.op = None,
-				.data = strtold(current, &current)
-			};
-
-			TokenStack_push(&outputStack, &temp);
+			pushOperand(&outputStack, strtold(current, &current));
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
@@ -96,12 +99,7 @@ TokenStack parseInput(char *input) {
 			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {			
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			} else {
-				Token temp = {
-					.op = None,
-					.data = strtold(current, &current)
-				};
-
-				TokenStack_push(&outputStack, &temp);
+				pushOperand(&outputStack, strtold(current, &current));
 			}
 		} else if (*current == '(') {
 			if (input != current) {
