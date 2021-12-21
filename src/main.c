@@ -12,7 +12,7 @@ int main(void) {
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
 
-	printf("Enter any expressions you would like to evaluate (press enter with no expressions to quit):\n");
+	printf("Enter any expressions you would like to evaluate (type \"exit\" to quit):\n");
 
 	for (;;) {
 		char c = EOF;
@@ -34,7 +34,7 @@ int main(void) {
 		input[numChars] = '\0';
 		char *beginning = input;
 		while (*beginning == ' ') beginning++;
-		if (*beginning == '\0') exit(0);
+		if (strncmp(beginning, "exit", 4) == 0) exit(0);
 
 		printf("Provided input: %s\n", input);
 		TokenStack parsedInput = parseInput(beginning);
