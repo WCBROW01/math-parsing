@@ -34,7 +34,7 @@ int main(void) {
 		input[numChars] = '\0';
 		char *beginning = input;
 		while (*beginning == ' ') beginning++;
-		if (strncmp(beginning, "exit", 4) == 0) exit(0);
+		if (strcmp(beginning, "exit") == 0) exit(0);
 
 		printf("Provided input: %s\n", input);
 		TokenStack parsedInput = parseInput(beginning);
