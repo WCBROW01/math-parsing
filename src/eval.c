@@ -1,7 +1,9 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include "tokenstack.h"
+#include "intrinsic.h"
 #include "eval.h"
 
 static Token performOperation(const Token *operator, const Token *a, const Token *b) {
@@ -31,6 +33,31 @@ static Token performOperation(const Token *operator, const Token *a, const Token
 	}
 
 	return temp;
+}
+
+Token_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic) {
+	switch(intrinsic) {
+	case Abs:
+		return fabsl(token);
+	case Sqrt:
+		return sqrtl(token);
+	case Ln:
+		return logl(token);
+	case Sin:
+		return sinl(token);
+	case Cos:
+		return cosl(token);
+	case Tan:
+		return tanl(token);
+	case Arcsin:
+		return asinl(token);
+	case Arccos:
+		return acosl(token);
+	case Arctan:
+		return atanl(token);
+	default:
+		assert(0 && "Intrinsic doesn't exist");
+	}
 }
 
 Token_t evaluateOpStack(TokenStack *input) {

@@ -1,7 +1,65 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include "tokenstack.h"
+#include "intrinsic.h"
+#include "eval.h"
+#include "parsing.h"
+
+/* Accepts a string containing an intrinsic and a pointer where the first index
+ * after the end of intrinsic will be stored */
+static Token_t parseIntrinsic(char *str, char **endp) {
+	if (strncmp(str, "abs(", 4) == 0) {
+		char *begin = str + 3;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Abs);
+	} else if (strncmp(str, "sqrt(", 5) == 0) {
+		char *begin = str + 4;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Sqrt);
+	} else if (strncmp(str, "ln(", 3) == 0) {
+		char *begin = str + 2;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Ln);
+	} else if (strncmp(str, "sin(", 4) == 0) {
+		char *begin = str + 3;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Sin);
+	} else if (strncmp(str, "cos(", 4) == 0) {
+		char *begin = str + 3;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Cos);
+	} else if (strncmp(str, "tan(", 4) == 0) {
+		char *begin = str + 3;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Tan);
+	} else if (strncmp(str, "arcsin(", 7) == 0) {
+		char *begin = str + 6;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Arcsin);
+	} else if (strncmp(str, "arccos(", 7) == 0) {
+		char *begin = str + 6;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Arccos);
+	} else if (strncmp(str, "arctan(", 7) == 0) {
+		char *begin = str + 6;
+		int length = exprlen(begin);
+		*endp = begin + length;
+		return evaluateIntrinsic(reduceExpr(begin, length), Arctan);
+	} else {
+		assert(0 && "Attempted to parse an intrinsic that doesn't exist.");
+	}
+}
 
 static int getOperatorPrecedence(const Token operator) {
 	switch(operator.op) {
@@ -78,6 +136,8 @@ static void pushOperand(TokenStack *outputStack, Token_t operand) {
 TokenStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
+	int numOperators = 0;
+	int numOperands = 0;
 
 	TokenStack outputStack = TokenStack_new();
 	TokenStack operatorStack = TokenStack_new();
@@ -85,6 +145,7 @@ TokenStack parseInput(char *input) {
 	while (*current != '\0') {
 		if (isdigit(*current)) {
 			pushOperand(&outputStack, strtold(current, &current));
+			numOperands++;
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
@@ -98,8 +159,10 @@ TokenStack parseInput(char *input) {
 			// Checks if the + or - is an operator or part of an operand
 			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {			
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
+				numOperators++;
 			} else {
 				pushOperand(&outputStack, strtold(current, &current));
+				numOperands++;
 			}
 		} else if (*current == '(') {
 			if (input != current) {
@@ -110,6 +173,7 @@ TokenStack parseInput(char *input) {
 				// If there is a digit before the parenthesis, imply multiplication.
 				if (isdigit(*lastOp)) {
 					pushOperator(&operatorStack, &outputStack, Mul);
+					numOperators++;
 				}
 			}
 			pushOperator(&operatorStack, &outputStack, OpenParen);
@@ -145,19 +209,22 @@ TokenStack parseInput(char *input) {
 			// If there is a digit after the parenthesis, imply multiplication.
 			if (isdigit(*nextOp)) {
 				pushOperator(&operatorStack, &outputStack, Mul);
+				numOperators++;
 			}
 
 			hangingParenthesis--;
 			current++;
+		} else if (isIntrinsic(current)) {
+			Token_t temp = parseIntrinsic(current, &current);
+			pushOperand(&outputStack, temp);
+			numOperands++;
 		} else {
 			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 		}
 	}
-	
-	char *lastOp = current - 1;
-	while (*lastOp == ' ') lastOp--;
-	if (!isdigit(*lastOp) && *lastOp != ')') {
-		printf("Invalid expression: You have no second operand for '%c'.\n", *lastOp);
+
+	if (numOperators > numOperands - 1) {
+		printf("Invalid expression: You have too many operators!\n");
 		exit(4);
 	} else if (hangingParenthesis > 0) {
 		printf("Invalid expression: You have %d unclosed parenthesis.\n", hangingParenthesis);
