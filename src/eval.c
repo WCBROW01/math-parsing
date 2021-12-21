@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "opstack.h"
+#include "tokenstack.h"
 #include "eval.h"
 
 static Token performOperation(const Token *operator, const Token *a, const Token *b) {

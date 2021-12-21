@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include "opstack.h"
+#include "tokenstack.h"
 
 static int getOperatorPrecedence(const Token operator) {
 	switch((int) operator.data) {

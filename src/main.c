@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "opstack.h"
+#include "tokenstack.h"
 #include "parsing.h"
 #include "eval.h"
 

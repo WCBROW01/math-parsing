@@ -1,5 +1,5 @@
-#ifndef OPSTACK_H
-#define OPSTACK_H
+#ifndef TOKENSTACK_H
+#define TOKENSTACK_H
 
 #include <stdbool.h>
 

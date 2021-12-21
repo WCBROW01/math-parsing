@@ -1,7 +1,7 @@
 #ifndef PARSING_H
 #define PARSING_H
 
-#include "opstack.h"
+#include "tokenstack.h"
 
 extern TokenStack parseInput(char *input);
 
