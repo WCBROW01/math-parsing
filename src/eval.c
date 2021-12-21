@@ -33,7 +33,7 @@ static Token performOperation(const Token *operator, const Token *a, const Token
 	return temp;
 }
 
-long double evaluateOpStack(TokenStack *input) {
+Token_t evaluateOpStack(TokenStack *input) {
 	if (input->length == 0) return NAN;
 
 	TokenStack evalStack = TokenStack_new();
@@ -54,7 +54,7 @@ long double evaluateOpStack(TokenStack *input) {
 		}
 	}
 
-	long double result = TokenStack_pop(&evalStack).data;
+	Token_t result = TokenStack_pop(&evalStack).data;
 	TokenStack_delete(&evalStack);
 
 	return result;

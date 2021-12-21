@@ -3,6 +3,6 @@
 
 #include "tokenstack.h"
 
-extern long double evaluateOpStack(TokenStack *input);
+extern Token_t evaluateOpStack(TokenStack *input);
 
 #endif

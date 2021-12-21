@@ -3,6 +3,8 @@
 
 #define MAX_LENGTH 64
 
+typedef long double Token_t;
+
 typedef enum Operator {
 	None,
 	Add,
@@ -17,7 +19,7 @@ typedef enum Operator {
 // Struct for operators and operands (with a boolean to differentiate)
 typedef struct Token {
 	Operator op;
-	long double data;
+	Token_t data;
 } Token;
 
 typedef struct TokenStack {
