@@ -102,7 +102,7 @@ static Operator parseOperator(const char operator) {
 	}
 }
 
-static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Operator operator) {	
+static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Operator operator) {
 	Token newOperator = {
 		.op = operator
 	};
@@ -154,10 +154,10 @@ TokenStack parseInput(char *input) {
 				// Look for the last character that isn't whitespace
 				lastOp = current - 1;
 				while (*lastOp == ' ') lastOp--;
-			} else lastOp = NULL; 
+			} else lastOp = NULL;
 
 			// Checks if the + or - is an operator or part of an operand
-			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {			
+			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 				numOperators++;
 			} else {
@@ -170,8 +170,9 @@ TokenStack parseInput(char *input) {
 				char *lastOp = current - 1;
 				while (*lastOp == ' ') lastOp--;
 
-				// If there is a digit before the parenthesis, imply multiplication.
-				if (isdigit(*lastOp)) {
+				/* If there is a digit before the parenthesis
+				 * or another parenthesis, imply multiplication. */
+				if (isdigit(*lastOp) || *lastOp == ')') {
 					pushOperator(&operatorStack, &outputStack, Mul);
 					numOperators++;
 				}
@@ -183,11 +184,11 @@ TokenStack parseInput(char *input) {
 			if (hangingParenthesis == 0) {
 				printf("Invalid expression: You are closing one or more parenthesis that don't exist!\n");
 				exit(3);
-			} else { 
+			} else {
 				char *lastOp = current - 1;
 				while (*lastOp == ' ') lastOp--;
 
-				if (*lastOp == '(') { 
+				if (*lastOp == '(') {
 					printf("Invalid expression: You have an empty set of parenthesis!\n");
 					exit(3);
 				}
