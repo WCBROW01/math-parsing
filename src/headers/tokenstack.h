@@ -1,27 +1,29 @@
 #ifndef TOKENSTACK_H
 #define TOKENSTACK_H
 
-#include <stdbool.h>
-
 #define MAX_LENGTH 64
-#define ADD 0
-#define SUB 1
-#define MUL 2
-#define DIV 3
-#define EXP 4
-#define OPEN_PAREN 5
-#define CLOSE_PAREN 6
+
+typedef enum Operator {
+	None,
+	Add,
+	Sub,
+	Mul,
+	Div,
+	Exp,
+	OpenParen,
+	CloseParen
+} Operator;
 
 // Struct for operators and operands (with a boolean to differentiate)
-typedef struct {
-	bool isOperator;
+typedef struct Token {
+	Operator op;
 	long double data;
 } Token;
 
-typedef struct {
+typedef struct TokenStack {
 	int length;
 	int top;
-	Token *ops;
+	Token *tokens;
 } TokenStack;
 
 extern TokenStack TokenStack_new();

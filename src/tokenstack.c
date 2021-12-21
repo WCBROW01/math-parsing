@@ -7,10 +7,10 @@ TokenStack TokenStack_new() {
 	TokenStack stack = {
 		.length = 0,
 		.top = -1,
-		.ops = malloc(MAX_LENGTH * sizeof(Token))
+		.tokens = malloc(MAX_LENGTH * sizeof(Token))
 	};
 
-	if (stack.ops == NULL) {
+	if (stack.tokens == NULL) {
 		fprintf(stderr, "Failed to create TokenStack, exiting.\n");
 		exit(1);
 	}
@@ -19,51 +19,51 @@ TokenStack TokenStack_new() {
 }
 
 void TokenStack_delete(TokenStack *stack) {
-	free(stack->ops);
+	free(stack->tokens);
 }
 
 void TokenStack_push(TokenStack *stack, const Token *data) {
 	assert(++stack->length <= 64 && "Error: You have too many items in the stack.");
-	stack->ops[++stack->top] = *data;
+	stack->tokens[++stack->top] = *data;
 }
 
 Token TokenStack_pop(TokenStack *stack) {
 	assert(--stack->length >= 0 && "Error: You have popped more items than are in the stack.");
-	return stack->ops[stack->top--];
+	return stack->tokens[stack->top--];
 }
 
 Token TokenStack_peek(const TokenStack *stack) {
-	return stack->ops[stack->top];
+	return stack->tokens[stack->top];
 }
 
 char operatorToChar(const Token *operator) {
-	switch((int) operator->data) {
-	case ADD:
+	switch(operator->op) {
+	case Add:
 		return '+';
-	case SUB:
+	case Sub:
 		return '-';
-	case MUL:
+	case Mul:
 		return '*';
-	case DIV:
+	case Div:
 		return '/';
-	case EXP:
+	case Exp:
 		return '^';
-	case OPEN_PAREN:
+	case OpenParen:
 		return '(';
-	case CLOSE_PAREN:
+	case CloseParen:
 		return ')';
 	default:
-		fprintf(stderr, "Invalid operator '%.15Lg'.\n", operator->data);
+		fprintf(stderr, "Invalid operator '%d'.\n", operator->op);
 		exit(2);
 	}
 }
 
 void TokenStack_print(const TokenStack *stack) {
 	for (int i = 0; i <= stack->top; i++) {
-		if (stack->ops[i].isOperator) {
-			printf("%c ", operatorToChar(&stack->ops[i]));
+		if (stack->tokens[i].op != None) {
+			printf("%c ", operatorToChar(&stack->tokens[i]));
 		} else {
-			printf("%.15Lg ", stack->ops[i].data);
+			printf("%.15Lg ", stack->tokens[i].data);
 		}
 	}
 

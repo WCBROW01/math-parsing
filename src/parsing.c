@@ -1,54 +1,53 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
 #include "tokenstack.h"
 
 static int getOperatorPrecedence(const Token operator) {
-	switch((int) operator.data) {
-	case ADD:
-	case SUB:
+	switch(operator.op) {
+	case Add:
+	case Sub:
 		return 0;
-	case MUL:
-	case DIV:
+	case Mul:
+	case Div:
 		return 1;
-	case EXP:
+	case Exp:
 		return 2;
-	case OPEN_PAREN:
-	case CLOSE_PAREN:
+	case OpenParen:
+	case CloseParen:
 		return 3;
 	default:
-		fprintf(stderr, "Invalid operator '%.15Lg'.\n", operator.data);
+		fprintf(stderr, "Invalid operator '%d'.\n", operator.op);
 		exit(2);
 	}
 }
 
-static long double parseOperator(const char operator) {
+static Operator parseOperator(const char operator) {
 	switch(operator) {
 	case '+':
-		return ADD;
+		return Add;
 	case '-':
-		return SUB;
+		return Sub;
 	case '*':
-		return MUL;
+		return Mul;
 	case '/':
-		return DIV;
+		return Div;
 	case '^':
-		return EXP;
+		return Exp;
 	case '(':
-		return OPEN_PAREN;
+		return OpenParen;
 	case ')':
-		return CLOSE_PAREN;
+		return CloseParen;
 	default:
 		fprintf(stderr, "Invalid operator '%c'.\n", operator);
 		exit(2);
 	}
 }
 
-static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, long double operator) {	
+static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Operator operator) {	
 	Token newOperator = {
-		.isOperator = true,
-		.data = operator
+		.op = operator,
+		.data = 0
 	};
 
 	if (operatorStack->length == 0) TokenStack_push(operatorStack, &newOperator);
@@ -78,7 +77,7 @@ TokenStack parseInput(char *input) {
 	while (*current != '\0') {
 		if (isdigit(*current)) {
 			Token temp = {
-				.isOperator = false,
+				.op = None,
 				.data = strtold(current, &current)
 			};
 
@@ -98,7 +97,7 @@ TokenStack parseInput(char *input) {
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			} else {
 				Token temp = {
-					.isOperator = false,
+					.op = None,
 					.data = strtold(current, &current)
 				};
 
@@ -112,10 +111,10 @@ TokenStack parseInput(char *input) {
 
 				// If there is a digit before the parenthesis, imply multiplication.
 				if (isdigit(*lastOp)) {
-					pushOperator(&operatorStack, &outputStack, MUL);
+					pushOperator(&operatorStack, &outputStack, Mul);
 				}
 			}
-			pushOperator(&operatorStack, &outputStack, OPEN_PAREN);
+			pushOperator(&operatorStack, &outputStack, OpenParen);
 			hangingParenthesis++;
 			current++;
 		} else if (*current == ')') {
@@ -133,7 +132,7 @@ TokenStack parseInput(char *input) {
 			}
 
 			// Pop everything within the parenthesis into the outputStack stack
-			while (TokenStack_peek(&operatorStack).data != OPEN_PAREN) {
+			while (TokenStack_peek(&operatorStack).op != OpenParen) {
 				Token operator = TokenStack_pop(&operatorStack);
 				TokenStack_push(&outputStack, &operator);
 			}
@@ -147,7 +146,7 @@ TokenStack parseInput(char *input) {
 
 			// If there is a digit after the parenthesis, imply multiplication.
 			if (isdigit(*nextOp)) {
-				pushOperator(&operatorStack, &outputStack, MUL);
+				pushOperator(&operatorStack, &outputStack, Mul);
 			}
 
 			hangingParenthesis--;
