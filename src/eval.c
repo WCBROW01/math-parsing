@@ -29,7 +29,8 @@ static Token performOperation(const Token *operator, const Token *a, const Token
 		break;
 	default:
 		fprintf(stderr, "Invalid operator '%d'.\n", operator->op);
-		exit(2);
+		temp.op = Err;
+		temp.data = 2;
 	}
 
 	return temp;
@@ -64,6 +65,7 @@ Token_t evaluateOpStack(TokenStack *input) {
 	if (input->length == 0) return NAN;
 
 	TokenStack evalStack = TokenStack_new();
+	Token_t result;
 
 	for (int i = 0; i < input->length; i++) {
 		if (input->tokens[i].op != None) {
@@ -71,6 +73,11 @@ Token_t evaluateOpStack(TokenStack *input) {
 			Token a = TokenStack_pop(&evalStack);
 			Token newOperand = performOperation(&input->tokens[i], &a, &b);
 			TokenStack_push(&evalStack, &newOperand);
+
+			if (TokenStack_peek(&evalStack).op == Err) {
+				puts("Error code: ");
+				goto destruct;
+			}
 		} else {
 			Token temp = {
 				.op = None,
@@ -81,7 +88,8 @@ Token_t evaluateOpStack(TokenStack *input) {
 		}
 	}
 
-	Token_t result = TokenStack_pop(&evalStack).data;
+	destruct:
+	result = TokenStack_pop(&evalStack).data;
 	TokenStack_delete(&evalStack);
 
 	return result;

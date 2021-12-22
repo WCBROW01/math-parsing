@@ -49,7 +49,7 @@ int main(void) {
 		TokenStack_print(&parsedInput);
 
 		long double answer = evaluateOpStack(&parsedInput);
-		printf("Answer: %.15Lg\n", answer);
+		printf("%.15Lg\n", answer);
 
 		destruct:
 		TokenStack_delete(&parsedInput);

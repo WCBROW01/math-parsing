@@ -69,3 +69,12 @@ void TokenStack_print(const TokenStack *stack) {
 
 	printf("\n");
 }
+
+Token Token_throwError(int errorlevel) {
+	Token error = {
+		.op = Err,
+		.data = errorlevel
+	};
+
+	return error;
+}

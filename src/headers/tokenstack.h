@@ -39,4 +39,6 @@ extern Token TokenStack_peek(const TokenStack *stack);
 extern char operatorToChar(const Token *operator);
 extern void TokenStack_print(const TokenStack *stack);
 
+extern Token Token_throwError(int errorlevel);
+
 #endif

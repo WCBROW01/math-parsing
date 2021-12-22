@@ -151,6 +151,11 @@ static void pushOperand(TokenStack *outputStack, Token_t operand) {
 	TokenStack_push(outputStack, &temp);
 }
 
+static void pushError(TokenStack *outputStack, int errorlevel) {
+	Token error = Token_throwError(errorlevel);
+	TokenStack_push(outputStack, &error);
+}
+
 TokenStack parseInput(char *input) {
 	char *current = input;
 	int hangingParenthesis = 0;
@@ -177,7 +182,11 @@ TokenStack parseInput(char *input) {
 			// Checks if the + or - is an operator or part of an operand
 			if (lastOp != NULL && (isdigit(*lastOp) || *lastOp == ')')) {
 				pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
-				numOperators++;
+
+				if (TokenStack_peek(&operatorStack).op == Err) {
+					TokenStack_pop(&operatorStack);
+					pushError(&outputStack, 2);
+				} else numOperators++;
 			} else {
 				pushOperand(&outputStack, strtold(current, &current));
 				numOperands++;
@@ -201,14 +210,16 @@ TokenStack parseInput(char *input) {
 		} else if (*current == ')') {
 			if (hangingParenthesis == 0) {
 				printf("Invalid expression: You are closing one or more parenthesis that don't exist!\n");
-				exit(3);
+				pushError(&outputStack, 3);
+				goto destruct;
 			} else {
 				char *lastOp = current - 1;
 				while (*lastOp == ' ') lastOp--;
 
 				if (*lastOp == '(') {
 					printf("Invalid expression: You have an empty set of parenthesis!\n");
-					exit(3);
+					pushError(&outputStack, 3);
+					goto destruct;
 				}
 			}
 
@@ -260,28 +271,23 @@ TokenStack parseInput(char *input) {
 			}
 		} else {
 			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
-			numOperators++;
+
+			if (TokenStack_peek(&operatorStack).op == Err) {
+				TokenStack_pop(&operatorStack);
+				pushError(&outputStack, 2);
+			} else numOperators++;
 		}
-
-		// Check for error state and don't evaluate any further if it is encountered
-		if (TokenStack_peek(&operatorStack).op == Err) {
-			Token errState = {
-				.op = Err
-			};
-
-			TokenStack_push(&outputStack, &errState);
-		}
-
-		if (TokenStack_peek(&outputStack).op == Err) goto destruct;
 
 	}
 
-	if (numOperators > numOperands - 1) {
+	if (numOperators != numOperands - 1) {
 		printf("Invalid expression: You have too many operators!\n");
-		exit(4);
+		pushError(&outputStack, 4);
+		goto destruct;
 	} else if (hangingParenthesis > 0) {
 		printf("Invalid expression: You have %d unclosed parenthesis.\n", hangingParenthesis);
-		exit(3);
+		pushError(&outputStack, 3);
+		goto destruct;
 	}
 
 	// Pop everything remaining in the operator stack into the outputStack
