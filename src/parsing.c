@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-// Include math constants
-#define _USE_MATH_DEFINES // for C
 #include <math.h>
 
 #include "tokenstack.h"
@@ -25,6 +22,8 @@ Token_t parseConstant(char *str, char **endp) {
 	} else if (strncmp(str, "e", 1) == 0) {
 		*endp = str + 1;
 		return M_E;
+	} else {
+		assert(0 && "Attempted to parse a constant that doesn't exist.");
 	}
 }
 
