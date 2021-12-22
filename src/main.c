@@ -34,7 +34,9 @@ int main(void) {
 		input[numChars] = '\0';
 		char *beginning = input;
 		while (*beginning == ' ') beginning++;
-		if (strcmp(beginning, "exit") == 0) exit(0);
+		if (strcmp(beginning, "exit") == 0) break;
+		// If the only input is a newline, do nothing and give a new prompt.
+		if (*beginning == '\0') continue;
 
 		printf("Provided input: %s\n", input);
 		TokenStack parsedInput = parseInput(beginning);
