@@ -12,7 +12,7 @@
 
 bool isConstant(char *str) {
 	return strncmp(str, "pi", 2) == 0 ||
-		   strncmp(str, "e" , 1) == 0; 
+		   strncmp(str, "e" , 1) == 0;
 }
 
 Token_t parseConstant(char *str, char **endp) {
@@ -94,8 +94,7 @@ static int getOperatorPrecedence(const Token operator) {
 	case CloseParen:
 		return 3;
 	default:
-		fprintf(stderr, "Invalid operator '%d'.\n", operator.op);
-		exit(2);
+		assert(0 && "Attempted to get precedence of an operator that doesn't exist");
 	}
 }
 
@@ -117,7 +116,7 @@ static Operator parseOperator(const char operator) {
 		return CloseParen;
 	default:
 		fprintf(stderr, "Invalid operator '%c'.\n", operator);
-		exit(2);
+		return Err;
 	}
 }
 
@@ -251,6 +250,7 @@ TokenStack parseInput(char *input) {
 					numOperators++;
 				}
 			}
+
 			pushOperand(&outputStack, parseConstant(current, &current));
 			numOperands++;
 
@@ -262,6 +262,18 @@ TokenStack parseInput(char *input) {
 			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
 			numOperators++;
 		}
+
+		// Check for error state and don't evaluate any further if it is encountered
+		if (TokenStack_peek(&operatorStack).op == Err) {
+			Token errState = {
+				.op = Err
+			};
+
+			TokenStack_push(&outputStack, &errState);
+		}
+
+		if (TokenStack_peek(&outputStack).op == Err) goto destruct;
+
 	}
 
 	if (numOperators > numOperands - 1) {
@@ -278,6 +290,7 @@ TokenStack parseInput(char *input) {
 		TokenStack_push(&outputStack, &operator);
 	}
 
+	destruct:
 	TokenStack_delete(&operatorStack);
 
 	return outputStack;

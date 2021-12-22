@@ -6,6 +6,7 @@
 typedef long double Token_t;
 
 typedef enum Operator {
+	Err = -1,
 	None,
 	Add,
 	Sub,

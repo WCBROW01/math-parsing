@@ -35,17 +35,23 @@ int main(void) {
 		char *beginning = input;
 		while (*beginning == ' ') beginning++;
 		if (strcmp(beginning, "exit") == 0) break;
+
 		// If the only input is a newline, do nothing and give a new prompt.
 		if (*beginning == '\0') continue;
 
 		printf("Provided input: %s\n", input);
 		TokenStack parsedInput = parseInput(beginning);
+
+		// If there was an error parsing, destroy the parsed input and continue.
+		if (TokenStack_peek(&parsedInput).op == Err) goto destruct;
+
 		printf("Parsed result in RPN: ");
 		TokenStack_print(&parsedInput);
 
 		long double answer = evaluateOpStack(&parsedInput);
 		printf("Answer: %.15Lg\n", answer);
 
+		destruct:
 		TokenStack_delete(&parsedInput);
 	}
 
