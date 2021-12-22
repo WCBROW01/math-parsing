@@ -3,10 +3,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+// Include math constants
+#define _USE_MATH_DEFINES // for C
+#include <math.h>
+
 #include "tokenstack.h"
 #include "intrinsic.h"
 #include "eval.h"
 #include "parsing.h"
+
+bool isConstant(char *str) {
+	return strncmp(str, "pi", 2) == 0 ||
+		   strncmp(str, "e" , 1) == 0; 
+}
+
+Token_t parseConstant(char *str, char **endp) {
+	if (strncmp(str, "pi", 2) == 0) {
+		*endp = str + 2;
+		return M_PI;
+	} else if (strncmp(str, "e", 1) == 0) {
+		*endp = str + 1;
+		return M_E;
+	}
+}
 
 /* Accepts a string containing an intrinsic and a pointer where the first index
  * after the end of intrinsic will be stored */
@@ -219,8 +239,29 @@ TokenStack parseInput(char *input) {
 			Token_t temp = parseIntrinsic(current, &current);
 			pushOperand(&outputStack, temp);
 			numOperands++;
+		} else if (isConstant(current)) {
+			if (input != current) {
+				// Look for the last character that isn't whitespace
+				char *lastOp = current - 1;
+				while (*lastOp == ' ') lastOp--;
+
+				/* If there is a digit, another constant, or another
+				 * parenthesis before this one, imply multiplication. */
+				if (isdigit(*lastOp) || *lastOp == ')') {
+					pushOperator(&operatorStack, &outputStack, Mul);
+					numOperators++;
+				}
+			}
+			pushOperand(&outputStack, parseConstant(current, &current));
+			numOperands++;
+
+			if (isConstant(current)) {
+				pushOperator(&operatorStack, &outputStack, Mul);
+				numOperators++;
+			}
 		} else {
 			pushOperator(&operatorStack, &outputStack, parseOperator(*current++));
+			numOperators++;
 		}
 	}
 
