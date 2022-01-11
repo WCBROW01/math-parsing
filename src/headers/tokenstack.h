@@ -1,7 +1,7 @@
 #ifndef TOKENSTACK_H
 #define TOKENSTACK_H
 
-#define MAX_LENGTH 64
+#define DEFAULT_LENGTH 64
 
 typedef long double Token_t;
 
@@ -25,7 +25,7 @@ typedef struct Token {
 
 typedef struct TokenStack {
 	int length;
-	int top;
+	Token *top;
 	Token *tokens;
 } TokenStack;
 

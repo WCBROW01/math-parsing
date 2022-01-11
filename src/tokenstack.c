@@ -6,8 +6,8 @@
 TokenStack TokenStack_new() {
 	TokenStack stack = {
 		.length = 0,
-		.top = -1,
-		.tokens = malloc(MAX_LENGTH * sizeof(Token))
+		.top = NULL,
+		.tokens = malloc(DEFAULT_LENGTH * sizeof(Token))
 	};
 
 	if (stack.tokens == NULL) {
@@ -23,17 +23,41 @@ void TokenStack_delete(TokenStack *stack) {
 }
 
 void TokenStack_push(TokenStack *stack, const Token *data) {
-	assert(++stack->length <= 64 && "Error: You have too many items in the stack.");
-	stack->tokens[++stack->top] = *data;
+
+	if (stack->length % DEFAULT_LENGTH == 0) {
+		Token *newArray = reallocarray(stack->tokens, stack->length + DEFAULT_LENGTH, sizeof(Token));
+
+		if (newArray == NULL) {
+			fprintf(stderr, "Out of memory error.\n");
+			exit(1);
+		} else {
+			stack->tokens = newArray;
+			stack->top = stack->tokens + stack->length - 1;
+		}
+	}
+
+	*++stack->top = *data;
+	stack->length++;
 }
 
 Token TokenStack_pop(TokenStack *stack) {
-	assert(--stack->length >= 0 && "Error: You have popped more items than are in the stack.");
-	return stack->tokens[stack->top--];
+	Token poppedToken = *stack->top--;
+	if (--stack->length % DEFAULT_LENGTH == 0 && stack->length > 0) {
+		Token *newArray = reallocarray(stack->tokens, stack->length, sizeof(Token));
+
+		if (newArray == NULL) {
+			fprintf(stderr, "Error reducing size of the stack.\n");
+			exit(1);
+		} else {
+			stack->tokens = newArray;
+		}
+	}
+
+	return poppedToken;
 }
 
 Token TokenStack_peek(const TokenStack *stack) {
-	return stack->tokens[stack->top];
+	return *stack->top;
 }
 
 char operatorToChar(const Token *operator) {
@@ -59,7 +83,7 @@ char operatorToChar(const Token *operator) {
 }
 
 void TokenStack_print(const TokenStack *stack) {
-	for (int i = 0; i <= stack->top; i++) {
+	for (int i = 0; i < stack->length; i++) {
 		if (stack->tokens[i].op != None) {
 			printf("%c ", operatorToChar(&stack->tokens[i]));
 		} else {
