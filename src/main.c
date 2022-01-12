@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "tokenstack.h"
-#include "parsing.h"
-#include "eval.h"
+#include "lexing.h"
 
 #define DEFAULT_MAXLEN 64
 
@@ -40,19 +39,14 @@ int main(void) {
 		if (*beginning == '\0') continue;
 
 		printf("Provided input: %s\n", input);
-		TokenStack parsedInput = parseInput(beginning);
+		TokenStack lexerOutput = lexInput(beginning);
 
-		// If there was an error parsing, destroy the parsed input and continue.
-		if (TokenStack_peek(&parsedInput).op == Err) goto destruct;
+		if (TokenStack_peek(&lexerOutput).type != Err) {
+			printf("Lexer result: ");
+			TokenStack_print(&lexerOutput);
+		}
 
-		printf("Parsed result in RPN: ");
-		TokenStack_print(&parsedInput);
-
-		long double answer = evaluateOpStack(&parsedInput);
-		printf("%.15Lg\n", answer);
-
-		destruct:
-		TokenStack_delete(&parsedInput);
+		TokenStack_delete(&lexerOutput);
 	}
 
 	free(input);

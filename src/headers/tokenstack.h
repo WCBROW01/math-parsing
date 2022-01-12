@@ -3,11 +3,17 @@
 
 #define DEFAULT_LENGTH 64
 
-typedef long double Token_t;
+typedef long double Operand_t;
+typedef int Err_t;
 
-typedef enum Operator {
-	Err = -1,
-	None,
+enum TokenType {
+	Operand,
+	Operator,
+	Err,
+	Null
+};
+
+enum Operator {
 	Add,
 	Sub,
 	Mul,
@@ -15,12 +21,12 @@ typedef enum Operator {
 	Exp,
 	OpenParen,
 	CloseParen
-} Operator;
+};
 
 // Struct for operators and operands (with a boolean to differentiate)
 typedef struct Token {
-	Operator op;
-	Token_t data;
+	enum TokenType type;
+	void *data;
 } Token;
 
 typedef struct TokenStack {
@@ -39,6 +45,8 @@ extern Token TokenStack_peek(const TokenStack *stack);
 extern char operatorToChar(const Token *operator);
 extern void TokenStack_print(const TokenStack *stack);
 
+extern Token Token_new(enum TokenType type);
+extern void Token_delete(Token *token);
 extern Token Token_throwError(int errorlevel);
 
 #endif
