@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "tokenstack.h"
 
 TokenStack TokenStack_new() {
@@ -139,6 +140,9 @@ void Token_delete(Token *token) {
 	default:
 		free(token->data);
 	}
+
+	// The token will be replaced with a null token to avoid undefined behavior.
+	*token = Token_new(Null);
 }
 
 Token Token_throwError(Err_t errorlevel) {

@@ -3,6 +3,6 @@
 
 #include "tokenstack.h"
 
-extern TokenStack parseInput(char *input);
+extern TokenStack parseTokens(TokenStack *input);
 
 #endif

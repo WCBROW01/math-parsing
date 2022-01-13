@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "tokenstack.h"
 #include "lexing.h"
+#include "parsing.h"
 
 #define DEFAULT_MAXLEN 64
 
@@ -45,6 +47,10 @@ int main(void) {
 			printf("Lexer result: ");
 			TokenStack_print(&lexerOutput);
 		}
+
+		TokenStack parserOutput = parseTokens(&lexerOutput);
+		printf("Parser result: ");
+		TokenStack_print(&parserOutput);
 
 		TokenStack_delete(&lexerOutput);
 	}
