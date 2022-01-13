@@ -61,8 +61,8 @@ Token TokenStack_peek(const TokenStack *stack) {
 	return *stack->top;
 }
 
-char operatorToChar(const Token *operator) {
-
+static char operatorToChar(const Token *operator) {
+	static_assert(NumOperators == 5, "Exhaustive handling of operators in operatorToChar");
 	if (operator->type != Operator) {
 		fprintf(stderr, "Error translating operator to character: Provided token is not an operator.");
 		exit(2);
@@ -79,27 +79,50 @@ char operatorToChar(const Token *operator) {
 		return '/';
 	case Exp:
 		return '^';
-	case OpenParen:
-		return '(';
-	case CloseParen:
-		return ')';
 	default:
 		fprintf(stderr, "Error translating operator to character: Invalid operator '%d'.\n", *(enum Operator*)operator->data);
 		exit(2);
 	}
 }
 
+static char delimToChar(const Token *delim) {
+	static_assert(NumDelims == 2, "Exhaustive handling of delimiters in delimToChar");
+	if (delim->type != Delim) {
+		fprintf(stderr, "Error translating delimiter to character: Provided token is not a delimiter.");
+		exit(2);
+	}
+
+	switch(*(enum Delim*)delim->data) {
+	case OpenParen:
+		return '(';
+	case CloseParen:
+		return ')';
+	default:
+		fprintf(stderr, "Error translating delimiter to character: Invalid delimiter '%d'.\n", *(enum Delim*)delim->data);
+		exit(2);
+	}
+}
+
 void TokenStack_print(const TokenStack *stack) {
+	static_assert(NumTypes == 5, "Exhaustive handling of token types in TokenStack_print");
 	for (int i = 0; i < stack->length; i++) {
-		if (stack->tokens[i].type == Operator) {
+		switch (stack->tokens[i].type) {
+		case Operator:
 			printf("%c ", operatorToChar(&stack->tokens[i]));
-		} else if (stack->tokens[i].type == Operand) {
+			break;
+		case Operand:
 			printf("%.15Lg ", *(Operand_t*)stack->tokens[i].data);
-		} else if (stack->tokens[i].type == Err) {
+			break;
+		case Err:
 			printf("Error %d ", *(Err_t*)stack->tokens[i].data);
-		} else if (stack->tokens[i].type == Null) {
+			break;
+		case Delim:
+			printf("%c ", delimToChar(&stack->tokens[i]));
+			break;
+		case Null:
 			printf("Null ");
-		} else {
+			break;
+		default:
 			fprintf(stderr, "Error printing token stack: An invalid token was encountered.\n");
 			exit(2);
 		}
@@ -109,6 +132,7 @@ void TokenStack_print(const TokenStack *stack) {
 }
 
 Token Token_new(enum TokenType type) {
+	static_assert(NumTypes == 5, "Exhaustive handling of token types in Token_new");
 	Token newToken = {
 		.type = type
 	};
@@ -119,6 +143,9 @@ Token Token_new(enum TokenType type) {
 		break;
 	case Operator:
 		newToken.data = malloc(sizeof(enum Operator));
+		break;
+	case Delim:
+		newToken.data = malloc(sizeof(enum Delim));
 		break;
 	case Err:
 		newToken.data = malloc(sizeof(Err_t));
@@ -135,6 +162,7 @@ Token Token_new(enum TokenType type) {
 }
 
 void Token_delete(Token *token) {
+	static_assert(NumTypes == 5, "Exhaustive handling of token types in Token_delete");
 	// This switch-case will only include special cases for freeing data.
 	switch (token->type) {
 	default:
