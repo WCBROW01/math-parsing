@@ -7,7 +7,7 @@
 
 static int getOperatorPrecedence(const Token operator) {
 	static_assert(NumOperators == 5, "Exhaustive handling of operators in getOperatorPrecedence");
-	switch(*(enum Operator*)operator.data) {
+	switch(operator.data.operator) {
 	case Add:
 	case Sub:
 		return 0;
@@ -47,7 +47,7 @@ static void pushError(TokenStack *outputStack, int errorlevel) {
 TokenStack parseTokens(TokenStack *input) {
 	static_assert(NumTypes == 5, "Exhaustive handling of token types in parseTokens");
 	Token *current = input->tokens;
-	Token lastToken = Token_new(Null);
+	Token lastToken = {.type = Null};
 	int hangingParenthesis = 0;
 	int numOperators = 0;
 	int numOperands = 0;
@@ -66,11 +66,14 @@ TokenStack parseTokens(TokenStack *input) {
 			numOperators++;
 			break;
 		case Delim:
-			if (*(enum Delim*)current->data == OpenParen) {
+			if (current->data.delim == OpenParen) {
 				if (lastToken.type == Operand) {
 					/* If there is an operand before the parenthesis imply multiplication. */
-					Token temp = Token_new(Operator);
-					*(enum Operator*)temp.data = Mul;
+					Token temp = {
+						.type = Operator,
+						.data.operator = Mul
+					};
+
 					pushOperator(&operatorStack, &outputStack, &temp);
 					numOperators++;
 				}
@@ -89,19 +92,21 @@ TokenStack parseTokens(TokenStack *input) {
 						TokenStack_push(&outputStack, &operator);
 					}
 
-					// Pop and delete the opening parenthesis
-					Token temp = TokenStack_pop(&operatorStack);
-					Token_delete(&temp);
+					// Pop the opening parenthesis
+					TokenStack_pop(&operatorStack);
 
-					if (*(enum Delim*)current->data == CloseParen) {
+					if (current->data.delim == CloseParen) {
 						if (lastToken.type == Delim) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
 						} else if (current != input->top && (current + 1)->type != Operator) {
 							// If there is not an operator after the parenthesis, imply multiplication.
-							Token temp = Token_new(Operator);
-							*(enum Operator*)temp.data = Mul;
+							Token temp = {
+								.type = Operator,
+								.data.operator = Mul
+							};
+
 							pushOperator(&operatorStack, &outputStack, &temp);
 							numOperators++;
 						}
@@ -112,7 +117,7 @@ TokenStack parseTokens(TokenStack *input) {
 			}
 			break;
 		case Err:
-			fprintf(stderr, "Error %d was let through into the parsing phase. This should never happen.\n", *(Err_t*)current->data);
+			fprintf(stderr, "Error %d was let through into the parsing phase. This should never happen.\n", current->data.err);
 			exit(1);
 		case Null:
 			fprintf(stderr, "Null token enountered during parsing.\n");

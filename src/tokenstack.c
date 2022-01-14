@@ -68,7 +68,7 @@ static char operatorToChar(const Token *operator) {
 		exit(2);
 	}
 
-	switch(*(enum Operator*)operator->data) {
+	switch(operator->data.operator) {
 	case Add:
 		return '+';
 	case Sub:
@@ -80,7 +80,7 @@ static char operatorToChar(const Token *operator) {
 	case Exp:
 		return '^';
 	default:
-		fprintf(stderr, "Error translating operator to character: Invalid operator '%d'.\n", *(enum Operator*)operator->data);
+		fprintf(stderr, "Error translating operator to character: Invalid operator '%d'.\n", operator->data.operator);
 		exit(2);
 	}
 }
@@ -92,13 +92,13 @@ static char delimToChar(const Token *delim) {
 		exit(2);
 	}
 
-	switch(*(enum Delim*)delim->data) {
+	switch(delim->data.delim) {
 	case OpenParen:
 		return '(';
 	case CloseParen:
 		return ')';
 	default:
-		fprintf(stderr, "Error translating delimiter to character: Invalid delimiter '%d'.\n", *(enum Delim*)delim->data);
+		fprintf(stderr, "Error translating delimiter to character: Invalid delimiter '%d'.\n", delim->data.delim);
 		exit(2);
 	}
 }
@@ -111,10 +111,10 @@ void TokenStack_print(const TokenStack *stack) {
 			printf("%c ", operatorToChar(&stack->tokens[i]));
 			break;
 		case Operand:
-			printf("%.15Lg ", *(Operand_t*)stack->tokens[i].data);
+			printf("%.15Lg ", stack->tokens[i].data.operand);
 			break;
 		case Err:
-			printf("Error %d ", *(Err_t*)stack->tokens[i].data);
+			printf("Error %d ", stack->tokens[i].data.err);
 			break;
 		case Delim:
 			printf("%c ", delimToChar(&stack->tokens[i]));
@@ -131,51 +131,11 @@ void TokenStack_print(const TokenStack *stack) {
 	printf("\n");
 }
 
-Token Token_new(enum TokenType type) {
-	static_assert(NumTypes == 5, "Exhaustive handling of token types in Token_new");
-	Token newToken = {
-		.type = type
-	};
-
-	switch (type) {
-	case Operand:
-		newToken.data = malloc(sizeof(Operand_t));
-		break;
-	case Operator:
-		newToken.data = malloc(sizeof(enum Operator));
-		break;
-	case Delim:
-		newToken.data = malloc(sizeof(enum Delim));
-		break;
-	case Err:
-		newToken.data = malloc(sizeof(Err_t));
-		break;
-	case Null:
-		newToken.data = NULL;
-		break;
-	default:
-		fprintf(stderr, "Unable to create token: invalid type.\n");
-		exit(2);
-	}
-
-	return newToken;
-}
-
-void Token_delete(Token *token) {
-	static_assert(NumTypes == 5, "Exhaustive handling of token types in Token_delete");
-	// This switch-case will only include special cases for freeing data.
-	switch (token->type) {
-	default:
-		free(token->data);
-	}
-
-	// The token will be replaced with a null token to avoid undefined behavior.
-	*token = Token_new(Null);
-}
-
 Token Token_throwError(Err_t errorlevel) {
-	Token error = Token_new(Err);
-	*(Err_t*) error.data = errorlevel;
+	Token error = {
+		.type = Err,
+		.data.err = errorlevel
+	};
 
 	return error;
 }

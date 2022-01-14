@@ -11,28 +11,26 @@ static_assert(NumOperators == 5, "Exhaustive handling of operators in ISOPERATOR
 
 static void pushOperator(TokenStack *outputStack, const char *operator) {
 	static_assert(NumOperators == 5, "Exhaustive handling of operators in pushOperator");
-	Token newOperator = Token_new(Operator);
-	enum Operator *tokenData = (enum Operator*) newOperator.data;
+	Token newOperator = {.type = Operator};
 
 	switch(*operator) {
 	case '+':
-		*tokenData = Add;
+		newOperator.data.operator = Add;
 		break;
 	case '-':
-		*tokenData = Sub;
+		newOperator.data.operator = Sub;
 		break;
 	case '*':
-		*tokenData = Mul;
+		newOperator.data.operator = Mul;
 		break;
 	case '/':
-		*tokenData = Div;
+		newOperator.data.operator = Div;
 		break;
 	case '^':
-		*tokenData = Exp;
+		newOperator.data.operator = Exp;
 		break;
 	default:
 		fprintf(stderr, "Invalid operator '%c'.\n", *operator);
-		Token_delete(&newOperator);
 		newOperator = Token_throwError(2);
 	}
 
@@ -44,19 +42,17 @@ static_assert(NumDelims == 2, "Exhaustive handling of delimiters in ISDELIM");
 
 static void pushDelim(TokenStack *outputStack, const char *delim) {
 	static_assert(NumDelims == 2, "Exhaustive handling of delimiters in pushDelim");
-	Token newDelim = Token_new(Delim);
-	enum Delim *tokenData = (enum Delim*) newDelim.data;
+	Token newDelim = {.type = Delim};
 
 	switch(*delim) {
 	case '(':
-		*tokenData = OpenParen;
+		newDelim.data.delim = OpenParen;
 		break;
 	case ')':
-		*tokenData = CloseParen;
+		newDelim.data.delim = CloseParen;
 		break;
 	default:
 		fprintf(stderr, "Invalid delimiter '%c'.\n", *delim);
-		Token_delete(&newDelim);
 		newDelim = Token_throwError(2);
 	}
 
@@ -64,8 +60,10 @@ static void pushDelim(TokenStack *outputStack, const char *delim) {
 }
 
 static void pushOperand(TokenStack *outputStack, Operand_t operand) {
-	Token temp = Token_new(Operand);
-	*(Operand_t*)temp.data = operand;
+	Token temp = {
+		.type = Operand,
+		.data.operand = operand
+	};
 
 	TokenStack_push(outputStack, &temp);
 }
@@ -76,10 +74,10 @@ TokenStack lexInput(char *input) {
 	TokenStack outputStack = TokenStack_new();
 
 	while (*current != '\0') {
-		Token lastToken = Token_new(Null);
+		Token lastToken = {.type = Null};
 		if (outputStack.length > 0) lastToken = TokenStack_peek(&outputStack);
 		if (lastToken.type == Err) {
-			fprintf(stderr, "Encountered Error %d while lexing.\n", *(Err_t*)lastToken.data);
+			fprintf(stderr, "Encountered Error %d while lexing.\n", lastToken.data.err);
 			break;
 		}
 
@@ -94,7 +92,7 @@ TokenStack lexInput(char *input) {
 			} else {
 				pushOperator(&outputStack, current++);
 			}
-		} else if (ISOPERATOR(	*current)) {
+		} else if (ISOPERATOR(*current)) {
 			pushOperator(&outputStack, current++);
 		} else if (ISDELIM(*current)) {
 			pushDelim(&outputStack, current++);

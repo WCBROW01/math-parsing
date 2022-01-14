@@ -8,7 +8,7 @@
 // Struct for operators and operands (with a boolean to differentiate)
 typedef struct Token {
 	enum TokenType type;
-	void *data;
+	union TokenData data;
 } Token;
 
 typedef struct TokenStack {
@@ -26,8 +26,6 @@ extern Token TokenStack_peek(const TokenStack *stack);
 
 extern void TokenStack_print(const TokenStack *stack);
 
-extern Token Token_new(enum TokenType type);
-extern void Token_delete(Token *token);
 extern Token Token_throwError(int errorlevel);
 
 #endif
