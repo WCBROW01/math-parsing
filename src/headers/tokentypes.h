@@ -5,27 +5,27 @@ typedef long double Operand_t;
 typedef int Err_t;
 
 enum Operator {
-	Add,
-	Sub,
-	Mul,
-	Div,
-	Exp,
-	NumOperators
+	ADD,
+	SUB,
+	MUL,
+	DIV,
+	EXP,
+	NUM_OPERATORS
 };
 
 enum Delim {
-	OpenParen,
-	CloseParen,
-	NumDelims
+	OPEN_PAREN,
+	CLOSE_PAREN,
+	NUM_DELIMS
 };
 
 enum TokenType {
-	Operand,
-	Operator,
-	Delim,
-	Err,
-	Null,
-	NumTypes
+	OPERAND,
+	OPERATOR,
+	DELIM,
+	ERR,
+	NULL_TOKEN,
+	NUM_TYPES
 };
 
 union TokenData {

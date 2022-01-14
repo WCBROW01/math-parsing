@@ -43,7 +43,7 @@ int main(void) {
 		printf("Provided input: %s\n", input);
 		TokenStack lexerOutput = lexInput(beginning);
 
-		if (TokenStack_peek(&lexerOutput).type != Err) {
+		if (TokenStack_peek(&lexerOutput).type != ERR) {
 			printf("Lexer result: ");
 			TokenStack_print(&lexerOutput);
 		}

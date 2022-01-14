@@ -6,15 +6,15 @@
 #include "parsing.h"
 
 static int getOperatorPrecedence(const Token operator) {
-	static_assert(NumOperators == 5, "Exhaustive handling of operators in getOperatorPrecedence");
+	static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in getOperatorPrecedence");
 	switch(operator.data.operator) {
-	case Add:
-	case Sub:
+	case ADD:
+	case SUB:
 		return 0;
-	case Mul:
-	case Div:
+	case MUL:
+	case DIV:
 		return 1;
-	case Exp:
+	case EXP:
 		return 2;
 	default:
 		assert(0 && "Attempted to get precedence of an operator that doesn't exist");
@@ -27,7 +27,7 @@ static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Tok
 		/* If anything in the operator stack has a higher precedence,
 		 * pop it from the stack and push it to the outputStack. */
 		while (operatorStack->length > 0 &&
-			   TokenStack_peek(operatorStack).type == Operator &&
+			   TokenStack_peek(operatorStack).type == OPERATOR &&
 			   getOperatorPrecedence(TokenStack_peek(operatorStack)) >=
 			   getOperatorPrecedence(*newOperator))
 		{
@@ -45,9 +45,9 @@ static void pushError(TokenStack *outputStack, int errorlevel) {
 }
 
 TokenStack parseTokens(TokenStack *input) {
-	static_assert(NumTypes == 5, "Exhaustive handling of token types in parseTokens");
+	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in parseTokens");
 	Token *current = input->tokens;
-	Token lastToken = {.type = Null};
+	Token lastToken = {.type = NULL_TOKEN};
 	int hangingParenthesis = 0;
 	int numOperators = 0;
 	int numOperands = 0;
@@ -57,21 +57,21 @@ TokenStack parseTokens(TokenStack *input) {
 
 	for (int i = 0; i < input->length; i++) {
 		switch (current->type) {
-		case Operand:
+		case OPERAND:
 			TokenStack_push(&outputStack, current);
 			numOperands++;
 			break;
-		case Operator:
+		case OPERATOR:
 			pushOperator(&operatorStack, &outputStack, current);
 			numOperators++;
 			break;
-		case Delim:
-			if (current->data.delim == OpenParen) {
-				if (lastToken.type == Operand) {
+		case DELIM:
+			if (current->data.delim == OPEN_PAREN) {
+				if (lastToken.type == OPERAND) {
 					/* If there is an operand before the parenthesis imply multiplication. */
 					Token temp = {
-						.type = Operator,
-						.data.operator = Mul
+						.type = OPERATOR,
+						.data.operator = MUL
 					};
 
 					pushOperator(&operatorStack, &outputStack, &temp);
@@ -87,7 +87,7 @@ TokenStack parseTokens(TokenStack *input) {
 					goto destruct;
 				} else {
 					// Pop everything within the current set of delimiters into the output stack
-					while (TokenStack_peek(&operatorStack).type != Delim) {
+					while (TokenStack_peek(&operatorStack).type != DELIM) {
 						Token operator = TokenStack_pop(&operatorStack);
 						TokenStack_push(&outputStack, &operator);
 					}
@@ -95,16 +95,16 @@ TokenStack parseTokens(TokenStack *input) {
 					// Pop the opening parenthesis
 					TokenStack_pop(&operatorStack);
 
-					if (current->data.delim == CloseParen) {
-						if (lastToken.type == Delim) {
+					if (current->data.delim == CLOSE_PAREN) {
+						if (lastToken.type == DELIM) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
-						} else if (current != input->top && (current + 1)->type != Operator) {
+						} else if (current != input->top && (current + 1)->type != OPERATOR) {
 							// If there is not an operator after the parenthesis, imply multiplication.
 							Token temp = {
-								.type = Operator,
-								.data.operator = Mul
+								.type = OPERATOR,
+								.data.operator = MUL
 							};
 
 							pushOperator(&operatorStack, &outputStack, &temp);
@@ -116,10 +116,10 @@ TokenStack parseTokens(TokenStack *input) {
 				}
 			}
 			break;
-		case Err:
+		case ERR:
 			fprintf(stderr, "Error %d was let through into the parsing phase. This should never happen.\n", current->data.err);
 			exit(1);
-		case Null:
+		case NULL_TOKEN:
 			fprintf(stderr, "Null token enountered during parsing.\n");
 			exit(1);
 		default:
