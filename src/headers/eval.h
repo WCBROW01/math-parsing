@@ -2,9 +2,9 @@
 #define EVAL_H
 
 #include "tokenstack.h"
-#include "intrinsic.h"
+//#include "intrinsic.h"
 
-extern Token_t evaluateOpStack(TokenStack *input);
-extern Token_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic);
+extern Operand_t evaluateTokenStack(TokenStack *input);
+//extern Operand_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic);
 
 #endif

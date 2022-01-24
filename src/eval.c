@@ -3,39 +3,45 @@
 #include <stdlib.h>
 #include <math.h>
 #include "tokenstack.h"
-#include "intrinsic.h"
 #include "eval.h"
 
-static Token performOperation(const Token *operator, const Token *a, const Token *b) {
+static void performOperation(TokenStack *evalStack) {
+	static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in performOperation");
+
+	Token operator = TokenStack_pop(evalStack);
+	Token b =		 TokenStack_pop(evalStack);
+	Token a =		 TokenStack_pop(evalStack);
+
 	Token temp = {
-		.op = None
+		.type = OPERAND
 	};
 
-	switch(operator->op) {
-	case Add:
-		temp.data = a->data + b->data;
+	switch(operator.data.operator) {
+	case ADD:
+		temp.data.operand = a.data.operand + b.data.operand;
 		break;
-	case Sub:
-		temp.data = a->data - b->data;
+	case SUB:
+		temp.data.operand = a.data.operand - b.data.operand;
 		break;
-	case Mul:
-		temp.data = a->data * b->data;
+	case MUL:
+		temp.data.operand = a.data.operand * b.data.operand;
 		break;
-	case Div:
-		temp.data = a->data / b->data;
+	case DIV:
+		temp.data.operand = a.data.operand / b.data.operand;
 		break;
-	case Exp:
-		temp.data = powl(a->data, b->data);
+	case EXP:
+		temp.data.operand = powl(a.data.operand, b.data.operand);
 		break;
 	default:
-		fprintf(stderr, "Invalid operator '%d'.\n", operator->op);
-		temp.op = Err;
-		temp.data = 2;
+		fprintf(stderr, "Invalid operator '%d'.\n", operator.data.operator);
+		temp.type = ERR;
+		temp.data.err = 2;
 	}
 
-	return temp;
+	TokenStack_push(evalStack, &temp);
 }
 
+/*
 Token_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic) {
 	switch(intrinsic) {
 	case Abs:
@@ -60,37 +66,40 @@ Token_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic) {
 		assert(0 && "Intrinsic doesn't exist");
 	}
 }
+*/
 
-Token_t evaluateOpStack(TokenStack *input) {
+Operand_t evaluateTokenStack(TokenStack *input) {
+	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in evaluateTokenStack");
 	if (input->length == 0) return NAN;
 
 	TokenStack evalStack = TokenStack_new();
-	Token_t result;
+	Token result;
 
 	for (int i = 0; i < input->length; i++) {
-		if (input->tokens[i].op != None) {
-			Token b = TokenStack_pop(&evalStack);
-			Token a = TokenStack_pop(&evalStack);
-			Token newOperand = performOperation(&input->tokens[i], &a, &b);
-			TokenStack_push(&evalStack, &newOperand);
-
-			if (TokenStack_peek(&evalStack).op == Err) {
-				puts("Error code: ");
-				goto destruct;
-			}
-		} else {
-			Token temp = {
-				.op = None,
-				.data = input->tokens[i].data
-			};
-
-			TokenStack_push(&evalStack, &temp);
+		switch (input->tokens[i].type) {
+		case OPERATOR:
+			TokenStack_push(&evalStack, &input->tokens[i]);
+			performOperation(&evalStack);
+			break;
+		case OPERAND:
+			TokenStack_push(&evalStack, &input->tokens[i]);
+			break;
+		case ERR:
+			printf("Error %d encountered during evaluation.", input->tokens[i].data.err);
+			goto destruct;
+		case NULL_TOKEN:
+			fprintf(stderr, "Null token enountered during evaluation.\n");
+			exit(1);
+		default:
+			printf("Invalid token encountered during evaluation.\n");
+			Token errorToken = Token_throwError(5);
+			TokenStack_push(&evalStack, &errorToken);
 		}
 	}
 
 	destruct:
-	result = TokenStack_pop(&evalStack).data;
+	result = TokenStack_pop(&evalStack);
 	TokenStack_delete(&evalStack);
 
-	return result;
+	return result.type == OPERAND ? result.data.operand : 0;
 }

@@ -5,6 +5,7 @@
 #include "tokenstack.h"
 #include "lexing.h"
 #include "parsing.h"
+#include "eval.h"
 
 #define DEFAULT_MAXLEN 64
 
@@ -52,7 +53,11 @@ int main(void) {
 		printf("Parser result: ");
 		TokenStack_print(&parserOutput);
 
+		long double answer = evaluateTokenStack(&parserOutput);
+		printf("Evaluated result: %.15Lg\n", answer);
+
 		TokenStack_delete(&lexerOutput);
+		TokenStack_delete(&parserOutput);
 	}
 
 	free(input);
