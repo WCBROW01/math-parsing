@@ -22,21 +22,18 @@ static int getOperatorPrecedence(const Token operator) {
 }
 
 static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Token *newOperator) {
-	if (operatorStack->length == 0) TokenStack_push(operatorStack, newOperator);
-	else if (operatorStack->length > 0) {
-		/* If anything in the operator stack has a higher precedence,
-		 * pop it from the stack and push it to the outputStack. */
-		while (operatorStack->length > 0 &&
-			   TokenStack_peek(operatorStack).type == OPERATOR &&
-			   getOperatorPrecedence(TokenStack_peek(operatorStack)) >=
-			   getOperatorPrecedence(*newOperator))
-		{
-			Token temp = TokenStack_pop(operatorStack);
-			TokenStack_push(outputStack, &temp);
-		}
-
-		TokenStack_push(operatorStack, newOperator);
+	/* If anything in the operator stack has a higher precedence,
+	 * pop it from the stack and push it to the outputStack. */
+	while (operatorStack->length > 0 &&
+		   TokenStack_peek(operatorStack).type == OPERATOR &&
+		   getOperatorPrecedence(TokenStack_peek(operatorStack)) >=
+		   getOperatorPrecedence(*newOperator))
+	{
+		Token temp = TokenStack_pop(operatorStack);
+		TokenStack_push(outputStack, &temp);
 	}
+
+	TokenStack_push(operatorStack, newOperator);
 }
 
 static void pushError(TokenStack *outputStack, int errorlevel) {
@@ -67,7 +64,7 @@ TokenStack parseTokens(TokenStack *input) {
 			break;
 		case DELIM:
 			if (current->data.delim == OPEN_PAREN) {
-				if (lastToken.type == OPERAND) {
+				if (lastToken.type == OPERAND || lastToken.type == DELIM) {
 					/* If there is an operand before the parenthesis imply multiplication. */
 					Token temp = {
 						.type = OPERATOR,
@@ -78,7 +75,7 @@ TokenStack parseTokens(TokenStack *input) {
 					numOperators++;
 				}
 
-				pushOperator(&operatorStack, &outputStack, current);
+				TokenStack_push(&operatorStack, current);
 				hangingParenthesis++;
 			} else {
 				if (hangingParenthesis == 0) {
@@ -100,7 +97,7 @@ TokenStack parseTokens(TokenStack *input) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
-						} else if (current != input->top && (current + 1)->type != OPERATOR) {
+						} else if (current != input->top && (current + 1)->type != OPERATOR && (current + 1)->type != DELIM) {
 							// If there is not an operator after the parenthesis, imply multiplication.
 							Token temp = {
 								.type = OPERATOR,
@@ -127,7 +124,7 @@ TokenStack parseTokens(TokenStack *input) {
 			exit(1);
 		}
 
-		*current++ = lastToken;
+		lastToken = *current++;
 	}
 
 	if (numOperators != numOperands - 1) {
