@@ -36,6 +36,16 @@ static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Tok
 	TokenStack_push(operatorStack, newOperator);
 }
 
+#define PUSHMUL \
+	do { \
+		Token temp = { \
+			.type = OPERATOR, \
+			.data.operator = MUL \
+		}; \
+		pushOperator(&operatorStack, &outputStack, &temp); \
+		numOperators++; \
+	} while (0)
+
 static void pushError(TokenStack *outputStack, int errorlevel) {
 	Token error = Token_throwError(errorlevel);
 	TokenStack_push(outputStack, &error);
@@ -64,17 +74,8 @@ TokenStack parseTokens(TokenStack *input) {
 			break;
 		case DELIM:
 			if (current->data.delim == OPEN_PAREN) {
-				if (lastToken.type == OPERAND || lastToken.type == DELIM) {
-					/* If there is an operand before the parenthesis imply multiplication. */
-					Token temp = {
-						.type = OPERATOR,
-						.data.operator = MUL
-					};
-
-					pushOperator(&operatorStack, &outputStack, &temp);
-					numOperators++;
-				}
-
+				// If there is an operand before the parenthesis, imply multiplication.
+				if (lastToken.type == OPERAND || lastToken.type == DELIM) PUSHMUL;
 				TokenStack_push(&operatorStack, current);
 				hangingParenthesis++;
 			} else {
@@ -103,34 +104,16 @@ TokenStack parseTokens(TokenStack *input) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
-						} else if (current != input->top && (current + 1)->type != OPERATOR && (current + 1)->type != DELIM) {
-							// If there is not an operator after the parenthesis, imply multiplication.
-							Token temp = {
-								.type = OPERATOR,
-								.data.operator = MUL
-							};
-
-							pushOperator(&operatorStack, &outputStack, &temp);
-							numOperators++;
-						}
-
+						// If there is not an operator after the parenthesis, imply multiplication.
+						} else if (current != input->top && (current + 1)->type != OPERATOR && (current + 1)->type != DELIM) PUSHMUL;
 						hangingParenthesis--;
 					}
 				}
 			}
 			break;
 		case INTRINSIC:
-			if (lastToken.type != OPERATOR && lastToken.type != DELIM && lastToken.type != NULL_TOKEN) {
-				// If there is not an operator before the intrinsic, imply multiplication.
-				Token temp = {
-					.type = OPERATOR,
-					.data.operator = MUL
-				};
-
-				pushOperator(&operatorStack, &outputStack, &temp);
-				numOperators++;
-			}
-
+			// If there is not an operator before the intrinsic, imply multiplication.
+			if (lastToken.type != OPERATOR && lastToken.type != DELIM && lastToken.type != NULL_TOKEN) PUSHMUL;
 			TokenStack_push(&operatorStack, current);
 			break;
 		case ERR:
