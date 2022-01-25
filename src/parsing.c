@@ -120,6 +120,17 @@ TokenStack parseTokens(TokenStack *input) {
 			}
 			break;
 		case INTRINSIC:
+			if (lastToken.type != OPERATOR && lastToken.type != DELIM && lastToken.type != NULL_TOKEN) {
+				// If there is not an operator after the parenthesis, imply multiplication.
+				Token temp = {
+					.type = OPERATOR,
+					.data.operator = MUL
+				};
+
+				pushOperator(&operatorStack, &outputStack, &temp);
+				numOperators++;
+			}
+
 			TokenStack_push(&operatorStack, current);
 			break;
 		case ERR:
