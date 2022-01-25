@@ -4,6 +4,9 @@
 
 #include "tokenstack.h"
 
+static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in INTRINSIC_STR");
+static const char *INTRINSIC_STR[9] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "arcsin", "arccos", "arctan"};
+
 TokenStack TokenStack_new() {
 	TokenStack stack = {
 		.length = 0,
@@ -103,7 +106,7 @@ static char delimToChar(const Token *delim) {
 }
 
 void TokenStack_print(const TokenStack *stack) {
-	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in TokenStack_print");
+	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in TokenStack_print");
 	for (int i = 0; i < stack->length; i++) {
 		switch (stack->tokens[i].type) {
 		case OPERATOR:
@@ -117,6 +120,9 @@ void TokenStack_print(const TokenStack *stack) {
 			break;
 		case DELIM:
 			printf("%c ", delimToChar(&stack->tokens[i]));
+			break;
+		case INTRINSIC:
+			printf("%s ", INTRINSIC_STR[stack->tokens[i].data.intrinsic]);
 			break;
 		case NULL_TOKEN:
 			printf("Null ");

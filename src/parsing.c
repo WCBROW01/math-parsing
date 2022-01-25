@@ -42,7 +42,7 @@ static void pushError(TokenStack *outputStack, int errorlevel) {
 }
 
 TokenStack parseTokens(TokenStack *input) {
-	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in parseTokens");
+	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in parseTokens");
 	Token *current = input->tokens;
 	Token lastToken = {.type = NULL_TOKEN};
 	int hangingParenthesis = 0;
@@ -92,6 +92,12 @@ TokenStack parseTokens(TokenStack *input) {
 					// Pop the opening parenthesis
 					TokenStack_pop(&operatorStack);
 
+					// Check for intrinsic and pop it into the output stack if one exists
+					if (TokenStack_peek(&operatorStack).type == INTRINSIC) {
+						Token intrinsic = TokenStack_pop(&operatorStack);
+						TokenStack_push(&outputStack, &intrinsic);
+					}
+
 					if (current->data.delim == CLOSE_PAREN) {
 						if (lastToken.type == DELIM) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
@@ -112,6 +118,9 @@ TokenStack parseTokens(TokenStack *input) {
 					}
 				}
 			}
+			break;
+		case INTRINSIC:
+			TokenStack_push(&operatorStack, current);
 			break;
 		case ERR:
 			fprintf(stderr, "Error %d was let through into the parsing phase. This should never happen.\n", current->data.err);

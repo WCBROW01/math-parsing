@@ -19,10 +19,24 @@ enum Delim {
 	NUM_DELIMS
 };
 
+enum Intrinsic {
+	ABS,
+	SQRT,
+	LN,
+	SIN,
+	COS,
+	TAN,
+	ARCSIN,
+	ARCCOS,
+	ARCTAN,
+	NUM_INTRINSICS
+};
+
 enum TokenType {
 	OPERAND,
 	OPERATOR,
 	DELIM,
+	INTRINSIC,
 	ERR,
 	NULL_TOKEN,
 	NUM_TYPES
@@ -32,6 +46,7 @@ union TokenData {
 	Operand_t operand;
 	enum Operator operator;
 	enum Delim delim;
+	enum Intrinsic intrinsic;
 	Err_t err;
 };
 

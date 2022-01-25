@@ -12,64 +12,78 @@ static void performOperation(TokenStack *evalStack) {
 	Token b =		 TokenStack_pop(evalStack);
 	Token a =		 TokenStack_pop(evalStack);
 
-	Token temp = {
-		.type = OPERAND
-	};
+	Token result = {.type = OPERAND};
 
 	switch(operator.data.operator) {
 	case ADD:
-		temp.data.operand = a.data.operand + b.data.operand;
+		result.data.operand = a.data.operand + b.data.operand;
 		break;
 	case SUB:
-		temp.data.operand = a.data.operand - b.data.operand;
+		result.data.operand = a.data.operand - b.data.operand;
 		break;
 	case MUL:
-		temp.data.operand = a.data.operand * b.data.operand;
+		result.data.operand = a.data.operand * b.data.operand;
 		break;
 	case DIV:
-		temp.data.operand = a.data.operand / b.data.operand;
+		result.data.operand = a.data.operand / b.data.operand;
 		break;
 	case EXP:
-		temp.data.operand = powl(a.data.operand, b.data.operand);
+		result.data.operand = powl(a.data.operand, b.data.operand);
 		break;
 	default:
 		fprintf(stderr, "Invalid operator '%d'.\n", operator.data.operator);
-		temp.type = ERR;
-		temp.data.err = 2;
+		result.type = ERR;
+		result.data.err = 2;
 	}
 
-	TokenStack_push(evalStack, &temp);
+	TokenStack_push(evalStack, &result);
 }
 
-/*
-Token_t evaluateIntrinsic(Token_t token, Intrinsic intrinsic) {
-	switch(intrinsic) {
-	case Abs:
-		return fabsl(token);
-	case Sqrt:
-		return sqrtl(token);
-	case Ln:
-		return logl(token);
-	case Sin:
-		return sinl(token);
-	case Cos:
-		return cosl(token);
-	case Tan:
-		return tanl(token);
-	case Arcsin:
-		return asinl(token);
-	case Arccos:
-		return acosl(token);
-	case Arctan:
-		return atanl(token);
+static void evaluateIntrinsic(TokenStack *evalStack) {
+	static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in evaluateIntrinsic");
+
+	Token intrinsic = TokenStack_pop(evalStack);
+	Token operand =  TokenStack_pop(evalStack);
+
+	Token result = {.type = OPERAND};
+
+	switch(intrinsic.data.intrinsic) {
+	case ABS:
+		result.data.operand = fabsl(operand.data.operand);
+		break;
+	case SQRT:
+		result.data.operand = sqrtl(operand.data.operand);
+		break;
+	case LN:
+		result.data.operand = logl(operand.data.operand);
+		break;
+	case SIN:
+		result.data.operand = sinl(operand.data.operand);
+		break;
+	case COS:
+		result.data.operand = cosl(operand.data.operand);
+		break;
+	case TAN:
+		result.data.operand = tanl(operand.data.operand);
+		break;
+	case ARCSIN:
+		result.data.operand = asinl(operand.data.operand);
+		break;
+	case ARCCOS:
+		result.data.operand = acosl(operand.data.operand);
+		break;
+	case ARCTAN:
+		result.data.operand = atanl(operand.data.operand);
+		break;
 	default:
 		assert(0 && "Intrinsic doesn't exist");
 	}
+
+	TokenStack_push(evalStack, &result);
 }
-*/
 
 Operand_t evaluateTokenStack(TokenStack *input) {
-	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in evaluateTokenStack");
+	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in evaluateTokenStack");
 	if (input->length == 0) return NAN;
 
 	TokenStack evalStack = TokenStack_new();
@@ -83,6 +97,10 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 			break;
 		case OPERAND:
 			TokenStack_push(&evalStack, &input->tokens[i]);
+			break;
+		case INTRINSIC:
+			TokenStack_push(&evalStack, &input->tokens[i]);
+			evaluateIntrinsic(&evalStack);
 			break;
 		case ERR:
 			printf("Error %d encountered during evaluation.", input->tokens[i].data.err);

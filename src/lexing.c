@@ -1,12 +1,13 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 
 #include "tokenstack.h"
 #include "lexing.h"
 
-static_assert(NUM_OPERATORS == 5, "Exhaustive handSubling of operators in ISOPERATOR");
+static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in ISOPERATOR");
 #define ISOPERATOR(op) (op == '+' || op == '-' || op == '*' || op == '/' || op == '^')
 
 static void pushOperator(TokenStack *outputStack, const char *operator) {
@@ -59,6 +60,48 @@ static void pushDelim(TokenStack *outputStack, const char *delim) {
 	TokenStack_push(outputStack, &newDelim);
 }
 
+static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in ISINTRINSIC");
+#define ISINTRINSIC(str) (strncmp(str, "abs(", 4) == 0 || strncmp(str, "sqrt(", 5) == 0 || strncmp(str, "ln(", 3) == 0 || strncmp(str, "sin(", 4) == 0 || strncmp(str, "cos(", 4) == 0 || strncmp(str, "tan(", 4) == 0 || strncmp(str, "arcsin(", 7) == 0 || strncmp(str, "arccos(", 7) == 0 || strncmp(str, "arctan(", 7) == 0)
+
+static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
+	static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in pushIntrinsic");
+	Token newIntrinsic = {.type = INTRINSIC};
+
+	if (strncmp(str, "abs", 3) == 0) {
+		*endp = str + 3;
+		newIntrinsic.data.intrinsic = ABS;
+	} else if (strncmp(str, "sqrt", 4) == 0) {
+		*endp = str + 4;
+		newIntrinsic.data.intrinsic = SQRT;
+	} else if (strncmp(str, "ln", 2) == 0) {
+		*endp = str + 2;
+		newIntrinsic.data.intrinsic = LN;
+	} else if (strncmp(str, "sin", 3) == 0) {
+		*endp = str + 3;
+		newIntrinsic.data.intrinsic = SIN;
+	} else if (strncmp(str, "cos", 3) == 0) {
+		*endp = str + 3;
+		newIntrinsic.data.intrinsic = COS;
+	} else if (strncmp(str, "tan", 3) == 0) {
+		*endp = str + 3;
+		newIntrinsic.data.intrinsic = TAN;
+	} else if (strncmp(str, "arcsin", 6) == 0) {
+		*endp = str + 6;
+		newIntrinsic.data.intrinsic = ARCSIN;
+	} else if (strncmp(str, "arccos", 6) == 0) {
+		*endp = str + 6;
+		newIntrinsic.data.intrinsic = ARCCOS;
+	} else if (strncmp(str, "arctan", 6) == 0) {
+		*endp = str + 6;
+		newIntrinsic.data.intrinsic = ARCTAN;
+	} else {
+		fprintf(stderr, "Invalid intrinsic encountered while lexing.\n");
+		newIntrinsic = Token_throwError(2);
+	}
+
+	TokenStack_push(outputStack, &newIntrinsic);
+}
+
 static void pushOperand(TokenStack *outputStack, Operand_t operand) {
 	Token temp = {
 		.type = OPERAND,
@@ -69,7 +112,7 @@ static void pushOperand(TokenStack *outputStack, Operand_t operand) {
 }
 
 TokenStack lexInput(char *input) {
-	static_assert(NUM_TYPES == 5, "Exhaustive handling of token types in lexInput");
+	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in lexInput");
 	char *current = input;
 	TokenStack outputStack = TokenStack_new();
 
@@ -96,6 +139,8 @@ TokenStack lexInput(char *input) {
 			pushOperator(&outputStack, current++);
 		} else if (ISDELIM(*current)) {
 			pushDelim(&outputStack, current++);
+		} else if (ISINTRINSIC(current)) {
+			pushIntrinsic(&outputStack, current, &current);
 		} else {
 			assert(0 && "Unreachable");
 		}
