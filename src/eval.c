@@ -43,7 +43,6 @@ static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in INTRINS
 static Operand_t (*INTRINSIC_FUNCS[9])(Operand_t) = {fabsl, sqrtl, logl, sinl, cosl, tanl, asinl, acosl, atanl};
 
 static void evaluateIntrinsic(TokenStack *evalStack) {
-	static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in evaluateIntrinsic");
 
 	Token intrinsic = TokenStack_pop(evalStack);
 	Token operand =  TokenStack_pop(evalStack);
