@@ -39,6 +39,9 @@ static void performOperation(TokenStack *evalStack) {
 	TokenStack_push(evalStack, &result);
 }
 
+static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
+static Operand_t (*INTRINSIC_FUNCS[9])(Operand_t) = {fabsl, sqrtl, logl, sinl, cosl, tanl, asinl, acosl, atanl};
+
 static void evaluateIntrinsic(TokenStack *evalStack) {
 	static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in evaluateIntrinsic");
 
@@ -47,38 +50,7 @@ static void evaluateIntrinsic(TokenStack *evalStack) {
 
 	Token result = {.type = OPERAND};
 
-	switch(intrinsic.data.intrinsic) {
-	case ABS:
-		result.data.operand = fabsl(operand.data.operand);
-		break;
-	case SQRT:
-		result.data.operand = sqrtl(operand.data.operand);
-		break;
-	case LN:
-		result.data.operand = logl(operand.data.operand);
-		break;
-	case SIN:
-		result.data.operand = sinl(operand.data.operand);
-		break;
-	case COS:
-		result.data.operand = cosl(operand.data.operand);
-		break;
-	case TAN:
-		result.data.operand = tanl(operand.data.operand);
-		break;
-	case ARCSIN:
-		result.data.operand = asinl(operand.data.operand);
-		break;
-	case ARCCOS:
-		result.data.operand = acosl(operand.data.operand);
-		break;
-	case ARCTAN:
-		result.data.operand = atanl(operand.data.operand);
-		break;
-	default:
-		assert(0 && "Intrinsic doesn't exist");
-	}
-
+	result.data.operand = INTRINSIC_FUNCS[intrinsic.data.intrinsic](operand.data.operand);
 	TokenStack_push(evalStack, &result);
 }
 
