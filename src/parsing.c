@@ -99,7 +99,7 @@ TokenStack parseTokens(TokenStack *input) {
 					}
 
 					if (current->data.delim == CLOSE_PAREN) {
-						if (lastToken.type == DELIM) {
+						if (lastToken.type == DELIM && lastToken.data.delim == OPEN_PAREN) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
