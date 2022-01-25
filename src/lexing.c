@@ -115,10 +115,9 @@ TokenStack lexInput(char *input) {
 	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in lexInput");
 	char *current = input;
 	TokenStack outputStack = TokenStack_new();
+	Token lastToken = {.type = NULL_TOKEN};
 
 	while (*current != '\0') {
-		Token lastToken = {.type = NULL_TOKEN};
-		if (outputStack.length > 0) lastToken = TokenStack_peek(&outputStack);
 		if (lastToken.type == ERR) {
 			fprintf(stderr, "Encountered Error %d while lexing.\n", lastToken.data.err);
 			break;
@@ -144,6 +143,8 @@ TokenStack lexInput(char *input) {
 		} else {
 			assert(0 && "Unreachable");
 		}
+
+		lastToken = TokenStack_peek(&outputStack);
 	}
 
 	return outputStack;
