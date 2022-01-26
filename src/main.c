@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -11,6 +12,7 @@
 
 int main(void) {
 	int inputMax = DEFAULT_MAXLEN;
+	bool debug = false;
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
 
@@ -40,21 +42,30 @@ int main(void) {
 
 		// If the only input is a newline, do nothing and give a new prompt.
 		if (*beginning == '\0') continue;
+		else if (strncmp(input, "debugmode", 9) == 0) {
+			// Toggle debug mode
+			debug ^= 1;
+			printf("Debug mode: %s.\n", debug ? "On" : "Off");
+			continue;
+		}
 
 		printf("Provided input: %s\n", input);
 		TokenStack lexerOutput = lexInput(beginning);
 
-		if (TokenStack_peek(&lexerOutput).type != ERR) {
+		if (debug && TokenStack_peek(&lexerOutput).type != ERR) {
 			printf("Lexer result: ");
 			TokenStack_print(&lexerOutput);
 		}
 
 		TokenStack parserOutput = parseTokens(&lexerOutput);
-		printf("Parser result: ");
-		TokenStack_print(&parserOutput);
+
+		if (debug) {
+			printf("Parser result: ");
+			TokenStack_print(&parserOutput);
+		}
 
 		long double answer = evaluateTokenStack(&parserOutput);
-		printf("Evaluated result: %.15Lg\n", answer);
+		printf("%.15Lg\n", answer);
 
 		TokenStack_delete(&lexerOutput);
 		TokenStack_delete(&parserOutput);
