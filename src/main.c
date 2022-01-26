@@ -51,13 +51,14 @@ int main(void) {
 
 		if (debug) printf("Provided input: %s\n", input);
 		TokenStack lexerOutput = lexInput(beginning);
+		TokenStack parserOutput = {0};
 
 		if (debug && TokenStack_peek(&lexerOutput).type != ERR) {
 			printf("Lexer result: ");
 			TokenStack_print(&lexerOutput);
-		}
+		} else if (TokenStack_peek(&lexerOutput).type == ERR) goto destruct;
 
-		TokenStack parserOutput = parseTokens(&lexerOutput);
+		parserOutput = parseTokens(&lexerOutput);
 
 		if (debug) {
 			printf("Parser result: ");
@@ -67,6 +68,7 @@ int main(void) {
 		long double answer = evaluateTokenStack(&parserOutput);
 		printf("%.15Lg\n", answer);
 
+		destruct:
 		TokenStack_delete(&lexerOutput);
 		TokenStack_delete(&parserOutput);
 	}

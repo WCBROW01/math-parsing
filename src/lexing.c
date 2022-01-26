@@ -141,7 +141,10 @@ TokenStack lexInput(char *input) {
 		} else if (ISINTRINSIC(current)) {
 			pushIntrinsic(&outputStack, current, &current);
 		} else {
-			assert(0 && "Unreachable");
+			// Invalid token while lexing.
+			fprintf(stderr, "Invalid input provided.\n");
+			Token error = Token_throwError(2);
+			TokenStack_push(&outputStack, &error);
 		}
 
 		lastToken = TokenStack_peek(&outputStack);
