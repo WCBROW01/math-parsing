@@ -61,7 +61,7 @@ static void intrinsic_arctan(TokenStack *stack) {
 
 static void intrinsic_rand(TokenStack *stack) {
 	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, (Operand_t) random() / RAND_MAX * operand.data.operand);
+	pushOperand(stack, (Operand_t) rand() / RAND_MAX * operand.data.operand);
 }
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
