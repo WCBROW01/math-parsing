@@ -29,6 +29,7 @@ enum Intrinsic {
 	ARCSIN,
 	ARCCOS,
 	ARCTAN,
+	RAND,
 	NUM_INTRINSICS
 };
 

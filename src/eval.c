@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "tokenstack.h"
+#include "intrinsic.h"
 #include "eval.h"
 
 static void performOperation(TokenStack *evalStack) {
@@ -39,18 +41,10 @@ static void performOperation(TokenStack *evalStack) {
 	TokenStack_push(evalStack, &result);
 }
 
-static_assert(NUM_INTRINSICS == 9, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
-static Operand_t (*INTRINSIC_FUNCS[9])(Operand_t) = {fabsl, sqrtl, logl, sinl, cosl, tanl, asinl, acosl, atanl};
-
 static void evaluateIntrinsic(TokenStack *evalStack) {
 
 	Token intrinsic = TokenStack_pop(evalStack);
-	Token operand =  TokenStack_pop(evalStack);
-
-	Token result = {.type = OPERAND};
-
-	result.data.operand = INTRINSIC_FUNCS[intrinsic.data.intrinsic](operand.data.operand);
-	TokenStack_push(evalStack, &result);
+	INTRINSIC_FUNCS[intrinsic.data.intrinsic](evalStack);
 }
 
 Operand_t evaluateTokenStack(TokenStack *input) {
