@@ -38,11 +38,11 @@ static void pushOperator(TokenStack *outputStack, const char *operator) {
 	TokenStack_push(outputStack, &newOperator);
 }
 
-static_assert(NUM_DELIMS == 2, "Exhaustive handling of delimiters in ISDELIM");
-#define ISDELIM(delim) (delim == '(' || delim == ')')
+static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in ISDELIM");
+#define ISDELIM(delim) (delim == '(' || delim == ')' || delim == ',')
 
 static void pushDelim(TokenStack *outputStack, const char *delim) {
-	static_assert(NUM_DELIMS == 2, "Exhaustive handling of delimiters in pushDelim");
+	static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in pushDelim");
 	Token newDelim = {.type = DELIM};
 
 	switch(*delim) {
@@ -51,6 +51,9 @@ static void pushDelim(TokenStack *outputStack, const char *delim) {
 		break;
 	case ')':
 		newDelim.data.delim = CLOSE_PAREN;
+		break;
+	case ',':
+		newDelim.data.delim = COMMA;
 		break;
 	default:
 		fprintf(stderr, "Invalid delimiter '%c'.\n", *delim);

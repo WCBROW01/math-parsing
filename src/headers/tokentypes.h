@@ -16,6 +16,7 @@ enum Operator {
 enum Delim {
 	OPEN_PAREN,
 	CLOSE_PAREN,
+	COMMA,
 	NUM_DELIMS
 };
 

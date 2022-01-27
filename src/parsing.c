@@ -90,24 +90,28 @@ TokenStack parseTokens(TokenStack *input) {
 						TokenStack_push(&outputStack, &operator);
 					}
 
-					// Pop the opening parenthesis
-					TokenStack_pop(&operatorStack);
-
-					// Check for intrinsic and pop it into the output stack if one exists
-					if (TokenStack_peek(&operatorStack).type == INTRINSIC) {
-						Token intrinsic = TokenStack_pop(&operatorStack);
-						TokenStack_push(&outputStack, &intrinsic);
-					}
-
 					if (current->data.delim == CLOSE_PAREN) {
 						if (lastToken.type == DELIM && lastToken.data.delim == OPEN_PAREN) {
 							printf("Invalid expression: You have a set of delimiters with no contents.\n");
 							pushError(&outputStack, 3);
 							goto destruct;
 						// If there is not an operator after the parenthesis, imply multiplication.
-						} else if (current != input->top && (current + 1)->type != OPERATOR && (current + 1)->type != DELIM) PUSHMUL;
-						hangingParenthesis--;
-					}
+						} else {
+							if (current != input->top && (current + 1)->type != OPERATOR && (current + 1)->type != DELIM) PUSHMUL;
+							else {
+								// Pop the opening parenthesis
+								TokenStack_pop(&operatorStack);
+
+								// Check for intrinsic and pop it into the output stack if one exists
+								if (TokenStack_peek(&operatorStack).type == INTRINSIC) {
+									Token intrinsic = TokenStack_pop(&operatorStack);
+									TokenStack_push(&outputStack, &intrinsic);
+								}
+							}
+							hangingParenthesis--;
+						}
+					// Required since multiple operands without operators will be pushed.
+					} else if (current->data.delim == COMMA) numOperators++;
 				}
 			}
 			break;

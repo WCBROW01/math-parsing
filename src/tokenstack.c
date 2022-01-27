@@ -7,8 +7,8 @@
 static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
 static const char OPERATOR_CHAR_TABLE[5] = {'+', '-', '*', '/', '^'};
 
-static_assert(NUM_DELIMS == 2, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
-static const char DELIM_CHAR_TABLE[2] = {'(', ')'};
+static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
+static const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
 static const char *INTRINSIC_STR_TABLE[10] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "arcsin", "arccos", "arctan", "rand"};
