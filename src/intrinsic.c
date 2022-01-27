@@ -15,53 +15,53 @@ static void pushOperand(TokenStack *stack, Operand_t operand) {
 }
 
 static void intrinsic_abs(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, fabsl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, fabsl(x.data.operand));
 }
 
 static void intrinsic_sqrt(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, sqrtl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, sqrtl(x.data.operand));
 }
 
 static void intrinsic_ln(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, logl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, logl(x.data.operand));
 }
 
 static void intrinsic_sin(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, sinl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, sinl(x.data.operand));
 }
 
 static void intrinsic_cos(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, cosl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, cosl(x.data.operand));
 }
 
 static void intrinsic_tan(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, tanl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, tanl(x.data.operand));
 }
 
 static void intrinsic_arcsin(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, asinl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, asinl(x.data.operand));
 }
 
 static void intrinsic_arccos(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, acosl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, acosl(x.data.operand));
 }
 
 static void intrinsic_arctan(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, atanl(operand.data.operand));
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, atanl(x.data.operand));
 }
 
 static void intrinsic_rand(TokenStack *stack) {
-	Token operand = TokenStack_pop(stack);
-	pushOperand(stack, (Operand_t) rand() / RAND_MAX * operand.data.operand);
+	Token upper_bound = TokenStack_pop(stack);
+	pushOperand(stack, (Operand_t) rand() / RAND_MAX * upper_bound.data.operand);
 }
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
