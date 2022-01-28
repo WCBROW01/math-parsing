@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <time.h>
 
 #include "tokenstack.h"
 #include "lexing.h"
@@ -16,6 +18,9 @@ int main(void) {
 	bool stackmode = false;
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
+
+	// Seed random number generator with current time
+	srand((unsigned int) (time(NULL) % ((unsigned long) UINT_MAX + 1)));
 
 	printf("Enter any expressions you would like to evaluate (type \"exit\" to quit):\n");
 
