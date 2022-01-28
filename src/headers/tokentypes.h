@@ -37,6 +37,8 @@ enum Intrinsic {
 	FLOOR,
 	CEIL,
 	LDEXP,
+	MIN,
+	MAX,
 	NUM_INTRINSICS
 };
 

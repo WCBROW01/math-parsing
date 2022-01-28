@@ -3,6 +3,6 @@
 
 #include "tokenstack.h"
 
-extern void (*INTRINSIC_FUNCS[15])(TokenStack*);
+extern void (*INTRINSIC_FUNCS[17])(TokenStack*);
 
 #endif

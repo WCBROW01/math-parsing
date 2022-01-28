@@ -91,5 +91,17 @@ static void intrinsic_ldexp(TokenStack *stack) {
 	pushOperand(stack, ldexpl(x.data.operand, (int) exp.data.operand));
 }
 
-static_assert(NUM_INTRINSICS == 15, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
-void (*INTRINSIC_FUNCS[15])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_cbrt, intrinsic_ln, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_asin, intrinsic_acos, intrinsic_atan, intrinsic_atan2, intrinsic_rand, intrinsic_floor, intrinsic_ceil, intrinsic_ldexp};
+static void intrinsic_min(TokenStack *stack) {
+	Token y = TokenStack_pop(stack);
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, fminl(x.data.operand, y.data.operand));
+}
+
+static void intrinsic_max(TokenStack *stack) {
+	Token y = TokenStack_pop(stack);
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, fmaxl(x.data.operand, y.data.operand));
+}
+
+static_assert(NUM_INTRINSICS == 17, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
+void (*INTRINSIC_FUNCS[17])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_cbrt, intrinsic_ln, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_asin, intrinsic_acos, intrinsic_atan, intrinsic_atan2, intrinsic_rand, intrinsic_floor, intrinsic_ceil, intrinsic_ldexp, intrinsic_min, intrinsic_max};
