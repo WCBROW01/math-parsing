@@ -12,7 +12,8 @@
 
 int main(void) {
 	int inputMax = DEFAULT_MAXLEN;
-	bool debug = false;
+	bool debugmode = false;
+	bool stackmode = false;
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
 
@@ -44,28 +45,35 @@ int main(void) {
 		if (*beginning == '\0') continue;
 		else if (strncmp(input, "debugmode", 9) == 0) {
 			// Toggle debug mode
-			debug ^= 1;
-			printf("Debug mode: %s.\n", debug ? "On" : "Off");
+			debugmode ^= 1;
+			printf("Debug mode: %s.\n", debugmode ? "On" : "Off");
+			continue;
+		} else if (strncmp(input, "stackmode", 9) == 0) {
+			// Toggle stack mode
+			stackmode ^= 1;
+			printf("Stack mode: %s.\n", stackmode ? "On" : "Off");
 			continue;
 		}
 
-		if (debug) printf("Provided input: %s\n", input);
+		if (debugmode) printf("Provided input: %s\n", input);
 		TokenStack lexerOutput = lexInput(beginning);
 		TokenStack parserOutput = {0};
 
-		if (debug && TokenStack_peek(&lexerOutput).type != ERR) {
+		if (debugmode && TokenStack_peek(&lexerOutput).type != ERR) {
 			printf("Lexer result: ");
 			TokenStack_print(&lexerOutput);
 		} else if (TokenStack_peek(&lexerOutput).type == ERR) goto destruct;
 
-		parserOutput = parseTokens(&lexerOutput);
+		if (!stackmode) parserOutput = parseTokens(&lexerOutput);
 
-		if (debug) {
+		if (debugmode && !stackmode) {
 			printf("Parser result: ");
 			TokenStack_print(&parserOutput);
 		}
 
-		long double answer = evaluateTokenStack(&parserOutput);
+		long double answer;
+		if (stackmode) answer = evaluateTokenStack(&lexerOutput);
+		else answer = evaluateTokenStack(&parserOutput);
 		printf("%.15Lg\n", answer);
 
 		destruct:
