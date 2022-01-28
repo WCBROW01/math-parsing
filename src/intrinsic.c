@@ -72,7 +72,7 @@ static void intrinsic_atan2(TokenStack *stack) {
 
 static void intrinsic_rand(TokenStack *stack) {
 	Token upper_bound = TokenStack_pop(stack);
-	pushOperand(stack, (Operand_t) rand() / RAND_MAX * upper_bound.data.operand);
+	pushOperand(stack, (Operand_t) random() / RAND_MAX * upper_bound.data.operand);
 }
 
 static void intrinsic_floor(TokenStack *stack) {
