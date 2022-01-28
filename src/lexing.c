@@ -150,7 +150,7 @@ TokenStack lexInput(char *input) {
 			current++;
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
-			if (lastToken.type == OPERATOR) {
+			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim == OPEN_PAREN)) {
 				pushOperand(&outputStack, strtold(current, &current));
 			} else {
 				pushOperator(&outputStack, current++);
