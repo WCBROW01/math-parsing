@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "tokenstack.h"
 #include "lexing.h"
@@ -123,6 +124,10 @@ static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
 	TokenStack_push(outputStack, &newIntrinsic);
 }
 
+/* There is barely any benefit to doing anything other than substitution,
+ * so we just won't. */
+#define ISCONSTANT(str) (strncmp(str, "pi", 2) == 0 || *str == 'e')
+
 static void pushOperand(TokenStack *outputStack, Operand_t operand) {
 	Token temp = {
 		.type = OPERAND,
@@ -161,6 +166,9 @@ TokenStack lexInput(char *input) {
 			pushDelim(&outputStack, current++);
 		} else if (ISINTRINSIC(current)) {
 			pushIntrinsic(&outputStack, current, &current);
+		} else if (ISCONSTANT(current)) {
+			if (strncmp(current, "pi", 2) == 0) pushOperand(&outputStack, M_PI);
+			else if (*current == 'e') pushOperand(&outputStack, M_PI);
 		} else {
 			// Invalid token while lexing.
 			fprintf(stderr, "Invalid input provided.\n");
