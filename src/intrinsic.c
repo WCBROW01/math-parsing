@@ -60,9 +60,9 @@ static void intrinsic_atan(TokenStack *stack) {
 }
 
 static void intrinsic_atan2(TokenStack *stack) {
-	Token y = TokenStack_pop(stack);
 	Token x = TokenStack_pop(stack);
-	pushOperand(stack, atan2l(x.data.operand, y.data.operand));
+	Token y = TokenStack_pop(stack);
+	pushOperand(stack, atan2l(y.data.operand, x.data.operand));
 }
 
 static void intrinsic_rand(TokenStack *stack) {
