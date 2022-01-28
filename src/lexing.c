@@ -167,8 +167,10 @@ TokenStack lexInput(char *input) {
 		} else if (ISINTRINSIC(current)) {
 			pushIntrinsic(&outputStack, current, &current);
 		} else if (ISCONSTANT(current)) {
-			if (strncmp(current, "pi", 2) == 0) pushOperand(&outputStack, M_PI);
-			else if (*current == 'e') pushOperand(&outputStack, M_PI);
+			if (strncmp(current, "pi", 2) == 0) {
+				pushOperand(&outputStack, M_PI);
+				current += 2;
+			} else if (*current++ == 'e') pushOperand(&outputStack, M_PI);
 		} else {
 			// Invalid token while lexing.
 			fprintf(stderr, "Invalid input provided.\n");
