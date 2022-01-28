@@ -10,8 +10,8 @@ static const char OPERATOR_CHAR_TABLE[6] = {'+', '-', '*', '/', '%', '^'};
 static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
 static const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
 
-static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
-static const char *INTRINSIC_STR_TABLE[10] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "rand"};
+static_assert(NUM_INTRINSICS == 14, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
+static const char *INTRINSIC_STR_TABLE[14] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp"};
 
 TokenStack TokenStack_new() {
 	TokenStack stack = {

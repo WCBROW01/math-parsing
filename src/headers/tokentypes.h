@@ -31,7 +31,11 @@ enum Intrinsic {
 	ASIN,
 	ACOS,
 	ATAN,
+	ATAN2,
 	RAND,
+	FLOOR,
+	CEIL,
+	LDEXP,
 	NUM_INTRINSICS
 };
 
