@@ -44,17 +44,17 @@ static void intrinsic_tan(TokenStack *stack) {
 	pushOperand(stack, tanl(x.data.operand));
 }
 
-static void intrinsic_arcsin(TokenStack *stack) {
+static void intrinsic_asin(TokenStack *stack) {
 	Token x = TokenStack_pop(stack);
 	pushOperand(stack, asinl(x.data.operand));
 }
 
-static void intrinsic_arccos(TokenStack *stack) {
+static void intrinsic_acos(TokenStack *stack) {
 	Token x = TokenStack_pop(stack);
 	pushOperand(stack, acosl(x.data.operand));
 }
 
-static void intrinsic_arctan(TokenStack *stack) {
+static void intrinsic_atan(TokenStack *stack) {
 	Token x = TokenStack_pop(stack);
 	pushOperand(stack, atanl(x.data.operand));
 }
@@ -65,4 +65,4 @@ static void intrinsic_rand(TokenStack *stack) {
 }
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
-void (*INTRINSIC_FUNCS[10])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_ln, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_arcsin, intrinsic_arccos, intrinsic_arctan, intrinsic_rand};
+void (*INTRINSIC_FUNCS[10])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_ln, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_asin, intrinsic_acos, intrinsic_atan, intrinsic_rand};

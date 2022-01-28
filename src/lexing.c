@@ -67,7 +67,7 @@ static void pushDelim(TokenStack *outputStack, const char *delim) {
 }
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in ISINTRINSIC");
-#define ISINTRINSIC(str) (strncmp(str, "abs(", 4) == 0 || strncmp(str, "sqrt(", 5) == 0 || strncmp(str, "ln(", 3) == 0 || strncmp(str, "sin(", 4) == 0 || strncmp(str, "cos(", 4) == 0 || strncmp(str, "tan(", 4) == 0 || strncmp(str, "arcsin(", 7) == 0 || strncmp(str, "arccos(", 7) == 0 || strncmp(str, "arctan(", 7) == 0 || strncmp(str, "rand(", 5) == 0)
+#define ISINTRINSIC(str) (strncmp(str, "abs(", 4) == 0 || strncmp(str, "sqrt(", 5) == 0 || strncmp(str, "ln(", 3) == 0 || strncmp(str, "sin(", 4) == 0 || strncmp(str, "cos(", 4) == 0 || strncmp(str, "tan(", 4) == 0 || strncmp(str, "asin(", 5) == 0 || strncmp(str, "acos(", 5) == 0 || strncmp(str, "atan(", 5) == 0 || strncmp(str, "rand(", 5) == 0)
 
 static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
 	static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in pushIntrinsic");
@@ -91,15 +91,15 @@ static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
 	} else if (strncmp(str, "tan", 3) == 0) {
 		*endp = str + 3;
 		newIntrinsic.data.intrinsic = TAN;
-	} else if (strncmp(str, "arcsin", 6) == 0) {
-		*endp = str + 6;
-		newIntrinsic.data.intrinsic = ARCSIN;
-	} else if (strncmp(str, "arccos", 6) == 0) {
-		*endp = str + 6;
-		newIntrinsic.data.intrinsic = ARCCOS;
-	} else if (strncmp(str, "arctan", 6) == 0) {
-		*endp = str + 6;
-		newIntrinsic.data.intrinsic = ARCTAN;
+	} else if (strncmp(str, "asin", 4) == 0) {
+		*endp = str + 4;
+		newIntrinsic.data.intrinsic = ASIN;
+	} else if (strncmp(str, "acos", 4) == 0) {
+		*endp = str + 4;
+		newIntrinsic.data.intrinsic = ACOS;
+	} else if (strncmp(str, "atan", 4) == 0) {
+		*endp = str + 4;
+		newIntrinsic.data.intrinsic = ATAN;
 	} else if (strncmp(str, "rand", 4) == 0) {
 		*endp = str + 4;
 		newIntrinsic.data.intrinsic = RAND;

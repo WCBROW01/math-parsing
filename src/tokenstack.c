@@ -11,7 +11,7 @@ static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_
 static const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
 
 static_assert(NUM_INTRINSICS == 10, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
-static const char *INTRINSIC_STR_TABLE[10] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "arcsin", "arccos", "arctan", "rand"};
+static const char *INTRINSIC_STR_TABLE[10] = {"abs", "sqrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "rand"};
 
 TokenStack TokenStack_new() {
 	TokenStack stack = {

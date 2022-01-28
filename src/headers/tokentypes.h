@@ -28,9 +28,9 @@ enum Intrinsic {
 	SIN,
 	COS,
 	TAN,
-	ARCSIN,
-	ARCCOS,
-	ARCTAN,
+	ASIN,
+	ACOS,
+	ATAN,
 	RAND,
 	NUM_INTRINSICS
 };
