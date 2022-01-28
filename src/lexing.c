@@ -67,11 +67,11 @@ static void pushDelim(TokenStack *outputStack, const char *delim) {
 	TokenStack_push(outputStack, &newDelim);
 }
 
-static_assert(NUM_INTRINSICS == 14, "Exhaustive handling of intrinsics in ISINTRINSIC");
-#define ISINTRINSIC(str) (strncmp(str, "abs(", 4) == 0 || strncmp(str, "sqrt(", 5) == 0 || strncmp(str, "ln(", 3) == 0 || strncmp(str, "sin(", 4) == 0 || strncmp(str, "cos(", 4) == 0 || strncmp(str, "tan(", 4) == 0 || strncmp(str, "asin(", 5) == 0 || strncmp(str, "acos(", 5) == 0 || strncmp(str, "atan2(", 6) == 0 || strncmp(str, "atan(", 5) == 0 || strncmp(str, "rand(", 5) == 0 || strncmp(str, "floor(", 6) == 0 || strncmp(str, "ceil(", 5) == 0 || strncmp(str, "ldexp(", 6) == 0)
+static_assert(NUM_INTRINSICS == 15, "Exhaustive handling of intrinsics in ISINTRINSIC");
+#define ISINTRINSIC(str) (strncmp(str, "abs(", 4) == 0 || strncmp(str, "sqrt(", 5) == 0 || strncmp(str, "cbrt(", 5) == 0 || strncmp(str, "ln(", 3) == 0 || strncmp(str, "sin(", 4) == 0 || strncmp(str, "cos(", 4) == 0 || strncmp(str, "tan(", 4) == 0 || strncmp(str, "asin(", 5) == 0 || strncmp(str, "acos(", 5) == 0 || strncmp(str, "atan2(", 6) == 0 || strncmp(str, "atan(", 5) == 0 || strncmp(str, "rand(", 5) == 0 || strncmp(str, "floor(", 6) == 0 || strncmp(str, "ceil(", 5) == 0 || strncmp(str, "ldexp(", 6) == 0)
 
 static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
-	static_assert(NUM_INTRINSICS == 14, "Exhaustive handling of intrinsics in pushIntrinsic");
+	static_assert(NUM_INTRINSICS == 15, "Exhaustive handling of intrinsics in pushIntrinsic");
 	Token newIntrinsic = {.type = INTRINSIC};
 
 	if (strncmp(str, "abs", 3) == 0) {
@@ -80,6 +80,9 @@ static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
 	} else if (strncmp(str, "sqrt", 4) == 0) {
 		*endp = str + 4;
 		newIntrinsic.data.intrinsic = SQRT;
+	} else if (strncmp(str, "cbrt", 4) == 0) {
+		*endp = str + 4;
+		newIntrinsic.data.intrinsic = CBRT;
 	} else if (strncmp(str, "ln", 2) == 0) {
 		*endp = str + 2;
 		newIntrinsic.data.intrinsic = LN;

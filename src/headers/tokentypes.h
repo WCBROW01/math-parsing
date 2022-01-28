@@ -24,6 +24,7 @@ enum Delim {
 enum Intrinsic {
 	ABS,
 	SQRT,
+	CBRT,
 	LN,
 	SIN,
 	COS,
