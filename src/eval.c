@@ -8,7 +8,7 @@
 #include "eval.h"
 
 static void performOperation(TokenStack *evalStack) {
-	static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in performOperation");
+	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in performOperation");
 
 	Token operator = TokenStack_pop(evalStack);
 	Token b =		 TokenStack_pop(evalStack);
@@ -28,6 +28,9 @@ static void performOperation(TokenStack *evalStack) {
 		break;
 	case DIV:
 		result.data.operand = a.data.operand / b.data.operand;
+		break;
+	case MOD:
+		result.data.operand = fmodl(a.data.operand, b.data.operand);
 		break;
 	case EXP:
 		result.data.operand = powl(a.data.operand, b.data.operand);

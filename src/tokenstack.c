@@ -4,8 +4,8 @@
 
 #include "tokenstack.h"
 
-static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
-static const char OPERATOR_CHAR_TABLE[5] = {'+', '-', '*', '/', '^'};
+static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
+static const char OPERATOR_CHAR_TABLE[6] = {'+', '-', '*', '/', '%', '^'};
 
 static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
 static const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};

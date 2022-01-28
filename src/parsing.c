@@ -6,13 +6,14 @@
 #include "parsing.h"
 
 static int getOperatorPrecedence(const Token operator) {
-	static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in getOperatorPrecedence");
+	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in getOperatorPrecedence");
 	switch(operator.data.operator) {
 	case ADD:
 	case SUB:
 		return 0;
 	case MUL:
 	case DIV:
+	case MOD:
 		return 1;
 	case EXP:
 		return 2;

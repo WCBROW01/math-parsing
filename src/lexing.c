@@ -7,11 +7,11 @@
 #include "tokenstack.h"
 #include "lexing.h"
 
-static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in ISOPERATOR");
-#define ISOPERATOR(op) (op == '+' || op == '-' || op == '*' || op == '/' || op == '^')
+static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in ISOPERATOR");
+#define ISOPERATOR(op) (op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '^')
 
 static void pushOperator(TokenStack *outputStack, const char *operator) {
-	static_assert(NUM_OPERATORS == 5, "Exhaustive handling of operators in pushOperator");
+	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in pushOperator");
 	Token newOperator = {.type = OPERATOR};
 
 	switch(*operator) {
@@ -26,6 +26,9 @@ static void pushOperator(TokenStack *outputStack, const char *operator) {
 		break;
 	case '/':
 		newOperator.data.operator = DIV;
+		break;
+	case '%':
+		newOperator.data.operator = MOD;
 		break;
 	case '^':
 		newOperator.data.operator = EXP;

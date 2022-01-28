@@ -9,6 +9,7 @@ enum Operator {
 	SUB,
 	MUL,
 	DIV,
+	MOD,
 	EXP,
 	NUM_OPERATORS
 };
