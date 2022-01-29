@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "tokentypes.h"
 #include "tokenstack.h"
 
 static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");

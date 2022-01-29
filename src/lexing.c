@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "tokentypes.h"
 #include "tokenstack.h"
 #include "lexing.h"
 

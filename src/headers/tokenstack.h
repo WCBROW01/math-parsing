@@ -1,8 +1,6 @@
 #ifndef TOKENSTACK_H
 #define TOKENSTACK_H
 
-#include "tokentypes.h"
-
 #define DEFAULT_LENGTH 64
 
 // Struct for operators and operands (with a boolean to differentiate)

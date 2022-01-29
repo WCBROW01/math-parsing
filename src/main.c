@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <time.h>
 
+#include "tokentypes.h"
 #include "tokenstack.h"
 #include "lexing.h"
 #include "parsing.h"

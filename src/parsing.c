@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "tokentypes.h"
 #include "tokenstack.h"
 #include "parsing.h"
 
