@@ -71,6 +71,9 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 			TokenStack_push(&evalStack, &input->tokens[i]);
 			evaluateIntrinsic(&evalStack);
 			break;
+		case DELIM:
+			// Do nothing, these are skipped in RPN.
+			break;
 		case ERR:
 			printf("Error %d encountered during evaluation.", input->tokens[i].data.err);
 			goto destruct;
