@@ -13,11 +13,15 @@ Since there are no dependencies, building is very easy! All you have to do is th
 make
 ```
 
-## What is included:
+## What is included
 
 ### Arithmetic operators
 
 Addition, subtraction, multiplication, division, modulus, and exponentiation are all supported. Parentheses are supported and the order of operations is honored, so anything that works in a basic calculator should work properly. Expressions like 2(1) and 2sqrt(2) are supported and will imply multiplication exactly as expected.
+
+### Mathematical constants
+
+*e* and *pi* will expand into their respective constants in the expression.
 
 ### Built-in functions
 
@@ -38,7 +42,7 @@ Addition, subtraction, multiplication, division, modulus, and exponentiation are
 | rand(x)       | A random floating-point number between 0 and x.              |
 | floor(x)      | The result of rounding down x                                |
 | ceil(x)       | The result of rounding up x                                  |
-| ldexp(x, exp) | The result of the expression x \* 2<sup>exp</sup>            |
+| ldexp(x, exp) | The result of the expression x ⋅ 2<sup>exp</sup>             |
 | min(x, y)     | The minimum value between x and y                            |
 | max(x, y)     | The maximum value between x and y                            |
 
@@ -55,7 +59,7 @@ You can switch certain features on and off by providing certain commands.
 
 ## Using Reverse Polish notation
 
-You can switch between infix and Reverse Polish notation using the `stackmode` command. In this mode, the infix parsing stage of the program is skipped entirely and whatever you type will be provided directly to the stack machine that evaluates expressions. Each part of the expression is separated by a space or comma. Including parentheses does absolutely nothing, and any present will be skipped. This is allowed purely in case it makes expressions easier to read. Currently, providing expressions with too many operators or operands invokes undefined behavior.
+You can switch between infix and Reverse Polish notation using the stackmode command. In this mode, the infix parsing stage of the program is skipped entirely and whatever you type will be provided directly to the stack machine that evaluates expressions. Each part of the expression is separated by a space or comma. Including parentheses does absolutely nothing, and any present will be skipped. This is allowed purely in case it makes expressions easier to read. Currently, providing expressions with extra operators or operands is undefined behavior.
 
 ### Arithmetic operations
 
