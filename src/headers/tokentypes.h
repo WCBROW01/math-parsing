@@ -26,6 +26,7 @@ enum Intrinsic {
 	SQRT,
 	CBRT,
 	LN,
+	LOG10,
 	SIN,
 	COS,
 	TAN,

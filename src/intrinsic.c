@@ -35,6 +35,11 @@ static void intrinsic_ln(TokenStack *stack) {
 	pushOperand(stack, logl(x.data.operand));
 }
 
+static void intrinsic_log10(TokenStack *stack) {
+	Token x = TokenStack_pop(stack);
+	pushOperand(stack, log10l(x.data.operand));
+}
+
 static void intrinsic_sin(TokenStack *stack) {
 	Token x = TokenStack_pop(stack);
 	pushOperand(stack, sinl(x.data.operand));
@@ -104,5 +109,5 @@ static void intrinsic_max(TokenStack *stack) {
 	pushOperand(stack, fmaxl(x.data.operand, y.data.operand));
 }
 
-static_assert(NUM_INTRINSICS == 17, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
-void (*INTRINSIC_FUNCS[17])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_cbrt, intrinsic_ln, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_asin, intrinsic_acos, intrinsic_atan, intrinsic_atan2, intrinsic_rand, intrinsic_floor, intrinsic_ceil, intrinsic_ldexp, intrinsic_min, intrinsic_max};
+static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in INTRINSIC_FUNCS");
+void (*INTRINSIC_FUNCS[18])(TokenStack*) = {intrinsic_abs, intrinsic_sqrt, intrinsic_cbrt, intrinsic_ln, intrinsic_log10, intrinsic_sin, intrinsic_cos, intrinsic_tan, intrinsic_asin, intrinsic_acos, intrinsic_atan, intrinsic_atan2, intrinsic_rand, intrinsic_floor, intrinsic_ceil, intrinsic_ldexp, intrinsic_min, intrinsic_max};
