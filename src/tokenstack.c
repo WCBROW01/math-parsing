@@ -6,13 +6,13 @@
 #include "tokenstack.h"
 
 static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
-static const char OPERATOR_CHAR_TABLE[6] = {'+', '-', '*', '/', '%', '^'};
+const char OPERATOR_CHAR_TABLE[6] = {'+', '-', '*', '/', '%', '^'};
 
 static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
-static const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
+const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
 
-static_assert(NUM_INTRINSICS == 17, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
-static const char *INTRINSIC_STR_TABLE[17] = {"abs", "sqrt", "cbrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
+static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
+const char *INTRINSIC_STR_TABLE[18] = {"abs", "sqrt", "cbrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
 
 TokenStack TokenStack_new() {
 	TokenStack stack = {

@@ -14,12 +14,16 @@ enum Operator {
 	NUM_OPERATORS
 };
 
+extern const char OPERATOR_CHAR_TABLE[6];
+
 enum Delim {
 	OPEN_PAREN,
 	CLOSE_PAREN,
 	COMMA,
 	NUM_DELIMS
 };
+
+extern const char DELIM_CHAR_TABLE[3];
 
 enum Intrinsic {
 	ABS,
@@ -42,6 +46,8 @@ enum Intrinsic {
 	MAX,
 	NUM_INTRINSICS
 };
+
+extern const char *INTRINSIC_STR_TABLE[18];
 
 enum TokenType {
 	OPERAND,
