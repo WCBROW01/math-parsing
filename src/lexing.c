@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -9,145 +10,34 @@
 #include "tokenstack.h"
 #include "lexing.h"
 
-static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in ISOPERATOR");
-#define ISOPERATOR(op) (op == '+' || op == '-' || op == '*' || op == '/' || op == '%' || op == '^')
-
-static void pushOperator(TokenStack *outputStack, const char *operator) {
-	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in pushOperator");
-	Token newOperator = {.type = OPERATOR};
-
-	switch(*operator) {
-	case '+':
-		newOperator.data.operator = ADD;
-		break;
-	case '-':
-		newOperator.data.operator = SUB;
-		break;
-	case '*':
-		newOperator.data.operator = MUL;
-		break;
-	case '/':
-		newOperator.data.operator = DIV;
-		break;
-	case '%':
-		newOperator.data.operator = MOD;
-		break;
-	case '^':
-		newOperator.data.operator = EXP;
-		break;
-	default:
-		fprintf(stderr, "Invalid operator '%c'.\n", *operator);
-		newOperator = Token_throwError(2);
+static bool substreq(char *str, const char *substr, char **endptr) {
+	bool eq = true;
+	size_t i;
+	for (i = 0; eq; i++) {
+		if (substr[i] == '\0') break;
+		else if (str[i] != substr[i]) eq = false;
 	}
 
-	TokenStack_push(outputStack, &newOperator);
+	if (eq && endptr != NULL) *endptr = str + i;
+	else if (endptr != NULL) *endptr = str;
+	return eq;
 }
 
-static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in ISDELIM");
-#define ISDELIM(delim) (delim == '(' || delim == ')' || delim == ',')
-
-static void pushDelim(TokenStack *outputStack, const char *delim) {
-	static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in pushDelim");
-	Token newDelim = {.type = DELIM};
-
-	switch(*delim) {
-	case '(':
-		newDelim.data.delim = OPEN_PAREN;
-		break;
-	case ')':
-		newDelim.data.delim = CLOSE_PAREN;
-		break;
-	case ',':
-		newDelim.data.delim = COMMA;
-		break;
-	default:
-		fprintf(stderr, "Invalid delimiter '%c'.\n", *delim);
-		newDelim = Token_throwError(2);
+static int searchTable(char *str, const char *table[], size_t length, char **endptr) {
+	bool found = false;
+	char *_endptr;
+	unsigned int index;
+	for (index = 0; index < length; index++) {
+		if (substreq(str, table[index], &_endptr)) {
+			found = true;
+			break;
+		}
 	}
 
-	TokenStack_push(outputStack, &newDelim);
-}
-
-static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in ISINTRINSIC");
-#define ISINTRINSIC(str) (strncmp(str, "abs", 3) == 0 || strncmp(str, "sqrt", 4) == 0 || strncmp(str, "cbrt", 4) == 0 || strncmp(str, "ln", 2) == 0 || strncmp(str, "log10", 5) == 0 || strncmp(str, "sin", 3) == 0 || strncmp(str, "cos", 3) == 0 || strncmp(str, "tan", 3) == 0 || strncmp(str, "asin", 4) == 0 || strncmp(str, "acos", 4) == 0 || strncmp(str, "atan2", 5) == 0 || strncmp(str, "atan", 4) == 0 || strncmp(str, "rand", 4) == 0 || strncmp(str, "floor", 5) == 0 || strncmp(str, "ceil", 4) == 0 || strncmp(str, "ldexp", 5) == 0 || strncmp(str, "min", 3) == 0 || strncmp(str, "max", 3) == 0)
-
-static void pushIntrinsic(TokenStack *outputStack, char *str, char **endp) {
-	static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in pushIntrinsic");
-	Token newIntrinsic = {.type = INTRINSIC};
-
-	if (strncmp(str, "abs", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = ABS;
-	} else if (strncmp(str, "sqrt", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = SQRT;
-	} else if (strncmp(str, "cbrt", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = CBRT;
-	} else if (strncmp(str, "ln", 2) == 0) {
-		*endp = str + 2;
-		newIntrinsic.data.intrinsic = LN;
-	} else if (strncmp(str, "log10", 5) == 0) {
-		*endp = str + 5;
-		newIntrinsic.data.intrinsic = LOG10;
-	} else if (strncmp(str, "sin", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = SIN;
-	} else if (strncmp(str, "cos", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = COS;
-	} else if (strncmp(str, "tan", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = TAN;
-	} else if (strncmp(str, "asin", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = ASIN;
-	} else if (strncmp(str, "acos", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = ACOS;
-	} else if (strncmp(str, "atan2", 5) == 0) {
-		*endp = str + 5;
-		newIntrinsic.data.intrinsic = ATAN2;
-	} else if (strncmp(str, "atan", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = ATAN;
-	} else if (strncmp(str, "rand", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = RAND;
-	} else if (strncmp(str, "floor", 5) == 0) {
-		*endp = str + 5;
-		newIntrinsic.data.intrinsic = FLOOR;
-	} else if (strncmp(str, "ceil", 4) == 0) {
-		*endp = str + 4;
-		newIntrinsic.data.intrinsic = CEIL;
-	} else if (strncmp(str, "ldexp", 5) == 0) {
-		*endp = str + 5;
-		newIntrinsic.data.intrinsic = LDEXP;
-	} else if (strncmp(str, "min", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = MIN;
-	} else if (strncmp(str, "max", 3) == 0) {
-		*endp = str + 3;
-		newIntrinsic.data.intrinsic = MAX;
-	} else {
-		fprintf(stderr, "Invalid intrinsic encountered while lexing.\n");
-		newIntrinsic = Token_throwError(2);
-	}
-
-	TokenStack_push(outputStack, &newIntrinsic);
-}
-
-/* There is barely any benefit to doing anything other than substitution,
- * so we just won't. */
-#define ISCONSTANT(str) (strncmp(str, "pi", 2) == 0 || *str == 'e')
-
-static void pushOperand(TokenStack *outputStack, Operand_t operand) {
-	Token temp = {
-		.type = OPERAND,
-		.data.operand = operand
-	};
-
-	TokenStack_push(outputStack, &temp);
+	if (found) {
+		if (endptr != NULL) *endptr = _endptr;
+		return index;
+	} else return -1;
 }
 
 TokenStack lexInput(char *input) {
@@ -162,36 +52,54 @@ TokenStack lexInput(char *input) {
 			break;
 		}
 
+		Token newToken; // Will be populated in this process
+
 		if (isdigit(*current)) {
-			pushOperand(&outputStack, strtold(current, &current));
+			newToken = (Token){
+				.type = OPERAND,
+				.data.operand = strtold(current, &current)
+			};
 		} else if (*current == ' ') {
 			current++;
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
 			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim == OPEN_PAREN)) {
-				pushOperand(&outputStack, strtold(current, &current));
+				newToken = (Token){
+					.type = OPERAND,
+					.data.operand = strtold(current, &current)
+				};
 			} else {
-				pushOperator(&outputStack, current++);
+				newToken = (Token){
+					.type = OPERATOR,
+					.data.operator = searchTable(current, OPERATOR_STR_TABLE, NUM_OPERATORS, &current)
+				};
 			}
-		} else if (ISOPERATOR(*current)) {
-			pushOperator(&outputStack, current++);
-		} else if (ISDELIM(*current)) {
-			pushDelim(&outputStack, current++);
-		} else if (ISINTRINSIC(current)) {
-			pushIntrinsic(&outputStack, current, &current);
-		} else if (ISCONSTANT(current)) {
-			if (strncmp(current, "pi", 2) == 0) {
-				pushOperand(&outputStack, M_PI);
-				current += 2;
-			} else if (*current++ == 'e') pushOperand(&outputStack, M_PI);
+		} else if ((newToken.data.operator = searchTable(current, OPERATOR_STR_TABLE, NUM_OPERATORS, &current)) != -1) {
+			newToken.type = OPERATOR;
+		} else if ((newToken.data.delim = searchTable(current, DELIM_STR_TABLE, NUM_DELIMS, &current)) != -1) {
+			newToken.type = DELIM;
+		} else if ((newToken.data.intrinsic = searchTable(current, INTRINSIC_STR_TABLE, NUM_INTRINSICS, &current)) != -1) {
+			newToken.type = INTRINSIC;
+		/* There is barely any benefit to doing anything other than substitution for constants,
+		 * so we just won't. */
+		} else if (substreq(current, "pi", &current)) {
+			newToken = (Token){
+				.type = OPERAND,
+				.data.operand = M_PI
+			};
+		} else if (*current++ == 'e') {
+			newToken = (Token){
+				.type = OPERAND,
+				.data.operand = M_E
+			};
 		} else {
 			// Invalid token while lexing.
 			fprintf(stderr, "Invalid input provided.\n");
-			Token error = Token_throwError(2);
-			TokenStack_push(&outputStack, &error);
+			newToken = Token_throwError(2);
 		}
 
-		lastToken = TokenStack_peek(&outputStack);
+		TokenStack_push(&outputStack, &newToken);
+		lastToken = newToken;
 	}
 
 	return outputStack;

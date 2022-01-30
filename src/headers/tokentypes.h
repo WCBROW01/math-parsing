@@ -14,7 +14,7 @@ enum Operator {
 	NUM_OPERATORS
 };
 
-extern const char OPERATOR_CHAR_TABLE[6];
+extern const char *OPERATOR_STR_TABLE[NUM_OPERATORS];
 
 enum Delim {
 	OPEN_PAREN,
@@ -23,7 +23,7 @@ enum Delim {
 	NUM_DELIMS
 };
 
-extern const char DELIM_CHAR_TABLE[3];
+extern const char *DELIM_STR_TABLE[NUM_DELIMS];
 
 enum Intrinsic {
 	ABS,
@@ -47,7 +47,7 @@ enum Intrinsic {
 	NUM_INTRINSICS
 };
 
-extern const char *INTRINSIC_STR_TABLE[18];
+extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 
 enum TokenType {
 	OPERAND,

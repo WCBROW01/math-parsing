@@ -6,13 +6,13 @@
 #include "tokenstack.h"
 
 static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
-const char OPERATOR_CHAR_TABLE[6] = {'+', '-', '*', '/', '%', '^'};
+const char *OPERATOR_STR_TABLE[NUM_OPERATORS] = {"+", "-", "*", "/", "%", "^"};
 
 static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
-const char DELIM_CHAR_TABLE[3] = {'(', ')', ','};
+const char *DELIM_STR_TABLE[NUM_DELIMS] = {"(", ")", ","};
 
 static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
-const char *INTRINSIC_STR_TABLE[18] = {"abs", "sqrt", "cbrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
+const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS] = {"abs", "sqrt", "cbrt", "ln", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
 
 TokenStack TokenStack_new() {
 	TokenStack stack = {
@@ -75,7 +75,7 @@ void TokenStack_print(const TokenStack *stack) {
 	for (int i = 0; i < stack->length; i++) {
 		switch (stack->tokens[i].type) {
 		case OPERATOR:
-			printf("%c ", OPERATOR_CHAR_TABLE[stack->tokens[i].data.operator]);
+			printf("%s ", OPERATOR_STR_TABLE[stack->tokens[i].data.operator]);
 			break;
 		case OPERAND:
 			printf("%.15Lg ", stack->tokens[i].data.operand);
@@ -84,7 +84,7 @@ void TokenStack_print(const TokenStack *stack) {
 			printf("Error %d ", stack->tokens[i].data.err);
 			break;
 		case DELIM:
-			printf("%c ", DELIM_CHAR_TABLE[stack->tokens[i].data.delim]);
+			printf("%s ", DELIM_STR_TABLE[stack->tokens[i].data.delim]);
 			break;
 		case INTRINSIC:
 			printf("%s ", INTRINSIC_STR_TABLE[stack->tokens[i].data.intrinsic]);
