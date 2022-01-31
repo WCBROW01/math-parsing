@@ -33,9 +33,7 @@ static int searchTable(char *str, const char *table[], size_t length, char **end
 		}
 	}
 
-	if (found) {
-		return index;
-	} else return -1;
+	return found ? index : -1;
 }
 
 TokenStack lexInput(char *input) {
