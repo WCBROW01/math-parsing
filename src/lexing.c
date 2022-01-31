@@ -25,17 +25,15 @@ static bool substreq(char *str, const char *substr, char **endptr) {
 
 static int searchTable(char *str, const char *table[], size_t length, char **endptr) {
 	bool found = false;
-	char *_endptr;
 	unsigned int index;
 	for (index = 0; index < length; index++) {
-		if (substreq(str, table[index], &_endptr)) {
+		if (substreq(str, table[index], endptr)) {
 			found = true;
 			break;
 		}
 	}
 
 	if (found) {
-		if (endptr != NULL) *endptr = _endptr;
 		return index;
 	} else return -1;
 }
@@ -61,9 +59,10 @@ TokenStack lexInput(char *input) {
 			};
 		} else if (*current == ' ') {
 			current++;
+			continue;
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
-			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim == OPEN_PAREN)) {
+			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim != CLOSE_PAREN)) {
 				newToken = (Token){
 					.type = OPERAND,
 					.data.operand = strtold(current, &current)
