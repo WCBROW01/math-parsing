@@ -6,30 +6,16 @@
 #include "tokenstack.h"
 #include "parsing.h"
 
-static int getOperatorPrecedence(const Token operator) {
-	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in getOperatorPrecedence");
-	switch(operator.data.operator) {
-	case ADD:
-	case SUB:
-		return 0;
-	case MUL:
-	case DIV:
-	case MOD:
-		return 1;
-	case EXP:
-		return 2;
-	default:
-		assert(0 && "Attempted to get precedence of an operator that doesn't exist");
-	}
-}
+static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_PRECEDENCE");
+static const int OPERATOR_PRECEDENCE[NUM_OPERATORS] = {0, 0, 1, 1, 1, 2};
 
 static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Token *newOperator) {
 	/* If anything in the operator stack has a higher precedence,
 	 * pop it from the stack and push it to the outputStack. */
 	while (operatorStack->length > 0 &&
 		   TokenStack_peek(operatorStack).type == OPERATOR &&
-		   getOperatorPrecedence(TokenStack_peek(operatorStack)) >=
-		   getOperatorPrecedence(*newOperator))
+		   OPERATOR_PRECEDENCE[TokenStack_peek(operatorStack).data.operator] >=
+		   OPERATOR_PRECEDENCE[newOperator->data.operator])
 	{
 		Token temp = TokenStack_pop(operatorStack);
 		TokenStack_push(outputStack, &temp);
