@@ -84,7 +84,8 @@ TokenStack lexInput(char *input) {
 				.type = OPERAND,
 				.data.operand = M_PI
 			};
-		} else if (*current++ == 'e') {
+		} else if (*current == 'e') {
+			current++;
 			newToken = (Token){
 				.type = OPERAND,
 				.data.operand = M_E
