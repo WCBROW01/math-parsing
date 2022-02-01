@@ -8,39 +8,23 @@
 #include "intrinsic.h"
 #include "eval.h"
 
+static Operand_t operator_add(Operand_t a, Operand_t b) {return a + b;}
+static Operand_t operator_sub(Operand_t a, Operand_t b) {return a - b;}
+static Operand_t operator_mul(Operand_t a, Operand_t b) {return a * b;}
+static Operand_t operator_div(Operand_t a, Operand_t b) {return a / b;}
+
+static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_FUNCS");
+static Operand_t (*OPERATOR_FUNCS[NUM_OPERATORS])(Operand_t, Operand_t) = {operator_add, operator_sub, operator_mul, operator_div, fmodl, powl};
+
 static void performOperation(TokenStack *evalStack) {
-	static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in performOperation");
-
 	Token operator = TokenStack_pop(evalStack);
-	Token b =		 TokenStack_pop(evalStack);
-	Token a =		 TokenStack_pop(evalStack);
+	Token b 	   = TokenStack_pop(evalStack);
+	Token a		   = TokenStack_pop(evalStack);
 
-	Token result = {.type = OPERAND};
-
-	switch(operator.data.operator) {
-	case ADD:
-		result.data.operand = a.data.operand + b.data.operand;
-		break;
-	case SUB:
-		result.data.operand = a.data.operand - b.data.operand;
-		break;
-	case MUL:
-		result.data.operand = a.data.operand * b.data.operand;
-		break;
-	case DIV:
-		result.data.operand = a.data.operand / b.data.operand;
-		break;
-	case MOD:
-		result.data.operand = fmodl(a.data.operand, b.data.operand);
-		break;
-	case EXP:
-		result.data.operand = powl(a.data.operand, b.data.operand);
-		break;
-	default:
-		fprintf(stderr, "Invalid operator '%d'.\n", operator.data.operator);
-		result.type = ERR;
-		result.data.err = 2;
-	}
+	Token result = {
+		.type = OPERAND,
+		.data.operand = OPERATOR_FUNCS[operator.data.operator](a.data.operand, b.data.operand)
+	};
 
 	TokenStack_push(evalStack, &result);
 }
