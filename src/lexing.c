@@ -25,6 +25,7 @@ static bool substreq(char *str, const char *substr, char **endptr) {
 static int searchTable(char *str, const char *table[], size_t length, char **endptr) {
 	bool found = false;
 	unsigned int index;
+
 	for (index = 0; index < length; index++) {
 		if (substreq(str, table[index], endptr)) {
 			found = true;
@@ -35,28 +36,42 @@ static int searchTable(char *str, const char *table[], size_t length, char **end
 	return found ? index : -1;
 }
 
-static int verifyVar(char *var) {
-	if (var == NULL) return 0;
-	char *temp = var;
+static struct Var *searchVars(char *str, char **endptr) {
+	bool found = false;
+	ssize_t index;
 
-	// Strip trailing spaces
-	while (*++temp != '\0');
-	while (*--temp == ' ') *temp = '\0';
-
-	// Save length
-	int length = temp - var + 1;
-
-	// Check for any reserved characters in string (this looks stupid I hate it)
-	temp = var;
-	while (*temp != '\0') {
-		if (*temp == ' ' ||
-			searchTable(temp, OPERATOR_STR_TABLE, NUM_OPERATORS, NULL) != -1 ||
-			searchTable(temp,    DELIM_STR_TABLE, NUM_DELIMS,    NULL) != -1
-		) return 0;
-		else temp++;
+	for (index = numVars - 1; index >= 0; index--) {
+		if (substreq(str, varTable[index].name, endptr)) {
+			found = true;
+			break;
+		}
 	}
 
-	return length;
+	return found ? &varTable[index] : NULL;
+}
+
+static bool verifyVar(char *var) {
+	if (var == NULL ||searchTable(var, INTRINSIC_STR_TABLE, NUM_INTRINSICS, NULL) != -1) return false;
+	else for (short i = 0; i < numVars; i++) {
+		if (strcmp(var, varTable[i].name) == 0) return false;
+	}
+
+	// Check for any reserved characters in string (this looks stupid I hate it)
+	while (*var != '\0') {
+		if (searchTable(var,  OPERATOR_STR_TABLE, NUM_OPERATORS,  NULL) != -1 ||
+			searchTable(var,     DELIM_STR_TABLE, NUM_DELIMS,     NULL) != -1
+		) return false;
+		else var++;
+	}
+
+	return true;
+}
+
+int compareVars(const void *a, const void *b) {
+	struct Var *a_cast = (struct Var*) a;
+	struct Var *b_cast = (struct Var*) b;
+
+	return strcmp(a_cast->name, b_cast->name);
 }
 
 TokenStack lexInput(char *input) {
@@ -82,6 +97,35 @@ TokenStack lexInput(char *input) {
 		} else if (*current == ' ') {
 			current++;
 			continue;
+		} else if (substreq(current, "let ", &current)) {
+			size_t varLength;
+
+			while (*current == ' ') current++; // Skip spaces
+			for (varLength = 1; current[varLength] != ' '; varLength++);
+			char *varName = malloc(varLength + 1);
+			strncpy(varName, current, varLength + 1);
+			varName[varLength] = '\0';
+
+			if (verifyVar(varName)) {
+				short varIndex = numVars++;
+				varTable[varIndex] = (struct Var){
+					.name = varName,
+					.index = varIndex,
+					.data = 0
+				};
+
+				newToken = (Token){
+					.type = VAR,
+					.data.var = &varTable[varIndex]
+				};
+
+				qsort(varTable, numVars, sizeof(struct Var), compareVars);
+				current += varLength;
+			} else {
+				fprintf(stderr, "Unable to create new variable \"%s\".\n Does it use reserved words or already exist?", varName);
+				free(varName);
+				newToken = Token_throwError(1);
+			}
 		} else if (*current == '=') {
 			if (!variableAssigned) {
 				newToken = (Token){
@@ -114,8 +158,8 @@ TokenStack lexInput(char *input) {
 			newToken.type = DELIM;
 		} else if ((newToken.data.intrinsic = searchTable(current, INTRINSIC_STR_TABLE, NUM_INTRINSICS, &current)) != -1) {
 			newToken.type = INTRINSIC;
-		/* There is barely any benefit to doing anything other than substitution for constants,
-		 * so we just won't. */
+		} else if ((newToken.data.var = searchVars(current, &current)) != NULL) {
+			newToken.type = VAR;
 		} else if (substreq(current, "pi", &current)) {
 			newToken = (Token){
 				.type = OPERAND,
@@ -127,57 +171,10 @@ TokenStack lexInput(char *input) {
 				.type = OPERAND,
 				.data.operand = M_E
 			};
-		// Try creating a variable token
 		} else {
-			int varLength;
-
-			// Search for existing variables
-			short varIndex = -1;
-			for (short i = 0; i < numVars; i++) {
-				if (substreq(current, varTable[i].name, NULL)) {
-					varLength = strlen(varTable[i].name);
-					varIndex = i;
-					break;
-				}
-			}
-
-			// Make token from existing variable
-			if (varIndex != -1) {
-				newToken = (Token){
-					.type = VAR,
-					.data.var = &varTable[varIndex]
-				};
-
-				current += varLength;
-			// Create a new variable
-			} else {
-				for (varLength = 1; current[varLength] != '='; varLength++);
-				char *varName = malloc(varLength + 1);
-				strncpy(varName, current, varLength + 1);
-				varName[varLength] = '\0';
-
-				varLength = verifyVar(varName);
-				if (varLength > 0) {
-					varIndex = numVars++;
-					varTable[varIndex] = (struct Var){
-						.name = varName,
-						.index = varIndex,
-						.data = NAN
-					};
-
-					newToken = (Token){
-						.type = VAR,
-						.data.var = &varTable[varIndex]
-					};
-
-					current += varLength;
-				} else {
-					// Invalid token while lexing.
-					free(varName);
-					fprintf(stderr, "Invalid input provided.\n");
-					newToken = Token_throwError(2);
-				}
-			}
+			// Invalid token while lexing.
+			fprintf(stderr, "Invalid input provided.\n");
+			newToken = Token_throwError(2);
 		}
 
 		TokenStack_push(&outputStack, &newToken);
