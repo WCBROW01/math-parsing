@@ -5,7 +5,7 @@ typedef long double Operand_t;
 typedef int Err_t;
 
 enum Operator {
-	SET,
+	ASSIGN,
 	ADD,
 	SUB,
 	MUL,

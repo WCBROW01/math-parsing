@@ -8,117 +8,55 @@
 #include "intrinsic.h"
 #include "eval.h"
 
-static Token operator_set(Token a, Token b) {
-	if (b.type == OPERAND) a.data.var->data = b.data.operand;
-	else if (b.type == VAR) a.data.var->data = b.data.var->data;
-
+static Token operator_assign(Token a, Token b) {
+	a.data.var->data = b.data.operand;
 	return b;
 }
 
 static Token operator_add(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = a_value + b_value
+		.data.operand = a.data.operand + b.data.operand
 	};
 }
 
 static Token operator_sub(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = a_value - b_value
+		.data.operand = a.data.operand - b.data.operand
 	};
 }
 
 static Token operator_mul(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = a_value * b_value
+		.data.operand = a.data.operand * b.data.operand
 	};
 }
 
 static Token operator_div(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = a_value / b_value
+		.data.operand = a.data.operand / b.data.operand
 	};
 }
 
 static Token operator_mod(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = fmodl(a_value, b_value)
+		.data.operand = fmodl(a.data.operand, b.data.operand)
 	};
 }
 
 static Token operator_pow(Token a, Token b) {
-	Operand_t a_value, b_value;
-
-	assert(a.type == OPERAND || a.type == VAR);
-	if (a.type == OPERAND) a_value = a.data.operand;
-	else if (a.type == VAR) a_value = a.data.var->data;
-
-	assert(b.type == OPERAND || b.type == VAR);
-	if (b.type == OPERAND) b_value = b.data.operand;
-	else if (b.type == VAR) b_value = b.data.var->data;
-
 	return (Token){
 		.type = OPERAND,
-		.data.operand = powl(a_value, b_value)
+		.data.operand = powl(a.data.operand, b.data.operand)
 	};
 }
 
 static_assert(NUM_OPERATORS == 7, "Exhaustive handling of operators in OPERATOR_FUNCS");
-static Token (*OPERATOR_FUNCS[NUM_OPERATORS])(Token, Token) = {operator_set, operator_add, operator_sub, operator_mul, operator_div, operator_mod, operator_pow};
+static Token (*OPERATOR_FUNCS[NUM_OPERATORS])(Token, Token) = {operator_assign, operator_add, operator_sub, operator_mul, operator_div, operator_mod, operator_pow};
 
 Operand_t evaluateTokenStack(TokenStack *input) {
 	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in evaluateTokenStack");
@@ -142,7 +80,18 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 			INTRINSIC_FUNCS[input->tokens[i].data.intrinsic](&evalStack);
 			break;
 		case VAR:
-			TokenStack_push(&evalStack, &input->tokens[i]);
+			// Token is being used for assignment
+			if (i == 0 && input->top->type == OPERATOR && input->top->data.operator == ASSIGN) {
+				TokenStack_push(&evalStack, &input->tokens[i]);
+			// Token is being used as an operand
+			} else {
+				Token operand = {
+					.type = OPERAND,
+					.data.operand = input->tokens[i].data.var->data
+				};
+
+				TokenStack_push(&evalStack, &operand);
+			}
 			break;
 		case DELIM:
 			// Do nothing, these are skipped in RPN.
@@ -154,7 +103,7 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 			fprintf(stderr, "Null token enountered during evaluation.\n");
 			exit(1);
 		default:
-			printf("Invalid token encountered during evaluation.\n");
+			fprintf(stderr, "Invalid token encountered during evaluation.\n");
 			Token errorToken = Token_throwError(5);
 			TokenStack_push(&evalStack, &errorToken);
 		}
@@ -165,6 +114,5 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 	TokenStack_delete(&evalStack);
 
 	if (result.type == OPERAND) return result.data.operand;
-	else if (result.type == VAR) return result.data.var->data;
 	else return 0;
 }

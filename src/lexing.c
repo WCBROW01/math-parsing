@@ -65,6 +65,7 @@ TokenStack lexInput(char *input) {
 	char *current = input;
 	TokenStack outputStack = TokenStack_new();
 	Token lastToken = {.type = NULL_TOKEN};
+	bool variableAssigned = false;
 
 	while (*current != '\0') {
 		if (lastToken.type == ERR) {
@@ -82,6 +83,19 @@ TokenStack lexInput(char *input) {
 		} else if (*current == ' ') {
 			current++;
 			continue;
+		} else if (*current == '=') {
+			if (!variableAssigned) {
+				newToken = (Token){
+					.type = OPERATOR,
+					.data.operator = ASSIGN
+				};
+
+				variableAssigned = true;
+				current++;
+			} else {
+				fprintf(stderr, "Attempted to assign multiple variables in one statement. This is not implemented.\n");
+				newToken = Token_throwError(1);
+			}
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
 			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim != CLOSE_PAREN)) {
