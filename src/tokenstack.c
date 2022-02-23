@@ -5,14 +5,18 @@
 #include "tokentypes.h"
 #include "tokenstack.h"
 
-static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
-const char *OPERATOR_STR_TABLE[NUM_OPERATORS] = {"+", "-", "*", "/", "%", "^"};
+static_assert(NUM_OPERATORS == 7, "Exhaustive handling of operators in OPERATOR_CHAR_TABLE");
+const char *OPERATOR_STR_TABLE[NUM_OPERATORS] = {"=", "+", "-", "*", "/", "%", "^"};
 
 static_assert(NUM_DELIMS == 3, "Exhaustive handling of delimiters in DELIM_CHAR_TABLE");
 const char *DELIM_STR_TABLE[NUM_DELIMS] = {"(", ")", ","};
 
 static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
 const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS] = {"abs", "sqrt", "cbrt", "ln", "log10", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
+
+#define VAR_CAP 1024
+short numVars = 0;
+struct Var varTable[VAR_CAP] = {0};
 
 TokenStack TokenStack_new() {
 	TokenStack stack = {
@@ -71,7 +75,7 @@ Token TokenStack_peek(const TokenStack *stack) {
 }
 
 void TokenStack_print(const TokenStack *stack) {
-	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in TokenStack_print");
+	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in TokenStack_print");
 	for (int i = 0; i < stack->length; i++) {
 		switch (stack->tokens[i].type) {
 		case OPERATOR:
@@ -88,6 +92,9 @@ void TokenStack_print(const TokenStack *stack) {
 			break;
 		case INTRINSIC:
 			printf("%s ", INTRINSIC_STR_TABLE[stack->tokens[i].data.intrinsic]);
+			break;
+		case VAR:
+			printf("%s ", stack->tokens[i].data.var->name);
 			break;
 		case NULL_TOKEN:
 			printf("Null ");

@@ -6,8 +6,8 @@
 #include "tokenstack.h"
 #include "parsing.h"
 
-static_assert(NUM_OPERATORS == 6, "Exhaustive handling of operators in OPERATOR_PRECEDENCE");
-static const int OPERATOR_PRECEDENCE[NUM_OPERATORS] = {0, 0, 1, 1, 1, 2};
+static_assert(NUM_OPERATORS == 7, "Exhaustive handling of operators in OPERATOR_PRECEDENCE");
+static const int OPERATOR_PRECEDENCE[NUM_OPERATORS] = {0, 1, 1, 2, 2, 2, 3};
 
 static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Token *newOperator) {
 	/* If anything in the operator stack has a higher precedence,
@@ -40,7 +40,7 @@ static void pushError(TokenStack *outputStack, int errorlevel) {
 }
 
 TokenStack parseTokens(TokenStack *input) {
-	static_assert(NUM_TYPES == 6, "Exhaustive handling of token types in parseTokens");
+	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in parseTokens");
 	Token *current = input->tokens;
 	Token lastToken = {.type = NULL_TOKEN};
 	int hangingParenthesis = 0;
@@ -107,6 +107,10 @@ TokenStack parseTokens(TokenStack *input) {
 			// If there is not an operator before the intrinsic, imply multiplication.
 			if (lastToken.type != OPERATOR && lastToken.type != DELIM && lastToken.type != NULL_TOKEN) PUSHMUL;
 			TokenStack_push(&operatorStack, current);
+			break;
+		case VAR:
+			TokenStack_push(&outputStack, current);
+			numOperands++;
 			break;
 		case ERR:
 			fprintf(stderr, "Error %d was let through into the parsing phase. This should never happen.\n", current->data.err);

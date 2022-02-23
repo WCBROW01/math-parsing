@@ -87,6 +87,7 @@ int main(void) {
 		TokenStack_delete(&parserOutput);
 	}
 
+	for (short i = 0; i < numVars; i++) free(varTable[i].name);
 	free(input);
 	return 0;
 }
