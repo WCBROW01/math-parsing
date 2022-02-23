@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "tokentypes.h"
 #include "tokenstack.h"
 #include "intrinsic.h"
 
