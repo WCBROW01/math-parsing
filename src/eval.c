@@ -46,7 +46,7 @@ void evaluateTokenStack(TokenStack *input) {
 			// Do nothing, these are skipped in RPN.
 			break;
 		case ERR:
-			printf("Error %d encountered during evaluation.", input->tokens[i].data.err);
+			printf("Error %d encountered during evaluation.\n", input->tokens[i].data.err);
 			goto destruct;
 		case NULL_TOKEN:
 			fprintf(stderr, "Null token enountered during evaluation.\n");
