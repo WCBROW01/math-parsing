@@ -2,11 +2,14 @@ CC=cc
 CC_PARAMS=-Wall -Wextra -pedantic -I$(HEADER_DIR) -O2
 HEADER_DIR=src/headers
 
-calculator: src/main.c build/eval.o build/intrinsic.o build/operator.o build/parsing.o build/lexing.o build/tokenstack.o
-	$(CC) $(CC_PARAMS) -o calculator src/main.c build/eval.o build/intrinsic.o build/operator.o build/parsing.o build/lexing.o build/tokenstack.o -lm
+calculator: src/main.c build/eval.o build/intrinsic.o build/operator.o build/parsing.o build/lexing.o build/vartable.o build/tokenstack.o
+	$(CC) $(CC_PARAMS) -o calculator src/main.c build/eval.o build/intrinsic.o build/operator.o build/parsing.o build/lexing.o build/vartable.o build/tokenstack.o -lm
 
 build/tokenstack.o: src/tokenstack.c
 	$(CC) $(CC_PARAMS) -o build/tokenstack.o src/tokenstack.c -c
+
+build/vartable.o: src/vartable.c
+	$(CC) $(CC_PARAMS) -o build/vartable.o src/vartable.c -c
 
 build/lexing.o: src/lexing.c
 	$(CC) $(CC_PARAMS) -o build/lexing.o src/lexing.c -c

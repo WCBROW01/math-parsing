@@ -7,6 +7,7 @@
 #include <math.h>
 
 #include "tokenstack.h"
+#include "vartable.h"
 #include "lexing.h"
 
 static bool substreq(char *str, const char *substr, char **endptr) {
@@ -36,25 +37,26 @@ static int searchTable(char *str, const char *table[], size_t length, char **end
 	return found ? index : -1;
 }
 
-static struct Var *searchVars(char *str, char **endptr) {
-	bool found = false;
-	ssize_t index;
+static Var *searchVars(VarTable *table, char *str, char **endptr) {
+	size_t length = 0;
+	while (str[length] != ' ' && str[length] != '\0' &&
+		   searchTable(str + length,  OPERATOR_STR_TABLE, NUM_OPERATORS,  NULL) == -1 &&
+		   searchTable(str + length,     DELIM_STR_TABLE, NUM_DELIMS,     NULL) == -1
+	) length++;
 
-	for (index = numVars - 1; index >= 0; index--) {
-		if (substreq(str, varTable[index].name, endptr)) {
-			found = true;
-			break;
-		}
-	}
+	// Temporarily copy the variable into a separate string.
+	char temp[length + 1];
+	strncpy(temp, str, length + 1);
+	temp[length] = '\0';
 
-	return found ? &varTable[index] : NULL;
+	struct Var *result = VarTable_search(table, temp);
+	if (endptr != NULL && result != NULL) *endptr = str + length;
+	return result;
 }
 
-static bool verifyVar(char *var) {
+static bool verifyVar(VarTable *table, char *var) {
 	if (var == NULL) return false;
-	else for (short i = 0; i < numVars; i++) {
-		if (strcmp(var, varTable[i].name) == 0) return false;
-	}
+	if (VarTable_search(table, var) != NULL) return false;
 
 	// Check if the variable name matches any intrinsics
 	for (size_t i = 0; i < NUM_INTRINSICS; i++) {
@@ -63,8 +65,8 @@ static bool verifyVar(char *var) {
 
 	// Check for any reserved characters in string (this looks stupid I hate it)
 	while (*var != '\0') {
-		if (searchTable(var,  OPERATOR_STR_TABLE, NUM_OPERATORS,  NULL) != -1 ||
-			searchTable(var,     DELIM_STR_TABLE, NUM_DELIMS,     NULL) != -1
+		if (searchTable(var, OPERATOR_STR_TABLE, NUM_OPERATORS, NULL) != -1 ||
+			searchTable(var,    DELIM_STR_TABLE, NUM_DELIMS,    NULL) != -1
 		) return false;
 		else var++;
 	}
@@ -72,14 +74,7 @@ static bool verifyVar(char *var) {
 	return true;
 }
 
-int compareVars(const void *a, const void *b) {
-	struct Var *a_cast = (struct Var*) a;
-	struct Var *b_cast = (struct Var*) b;
-
-	return strcmp(a_cast->name, b_cast->name);
-}
-
-TokenStack lexInput(char *input) {
+TokenStack lexInput(char *input, VarTable *globalVars) {
 	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in lexInput");
 	char *current = input;
 	TokenStack outputStack = TokenStack_new();
@@ -111,20 +106,13 @@ TokenStack lexInput(char *input) {
 			strncpy(varName, current, varLength + 1);
 			varName[varLength] = '\0';
 
-			if (verifyVar(varName)) {
-				short varIndex = numVars++;
-				varTable[varIndex] = (struct Var){
-					.name = varName,
-					.index = varIndex,
-					.data = 0
-				};
-
+			if (verifyVar(globalVars, varName)) {
+				Var *newVar = VarTable_insert(globalVars, varName);
 				newToken = (Token){
 					.type = VAR,
-					.data.var = &varTable[varIndex]
+					.data.var = newVar
 				};
 
-				qsort(varTable, numVars, sizeof(struct Var), compareVars);
 				current += varLength;
 			} else {
 				fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
@@ -161,10 +149,10 @@ TokenStack lexInput(char *input) {
 			newToken.type = OPERATOR;
 		} else if ((newToken.data.delim = searchTable(current, DELIM_STR_TABLE, NUM_DELIMS, &current)) != -1) {
 			newToken.type = DELIM;
+		} else if ((newToken.data.var = searchVars(globalVars, current, &current)) != NULL) {
+			newToken.type = VAR;
 		} else if ((newToken.data.intrinsic = searchTable(current, INTRINSIC_STR_TABLE, NUM_INTRINSICS, &current)) != -1) {
 			newToken.type = INTRINSIC;
-		} else if ((newToken.data.var = searchVars(current, &current)) != NULL) {
-			newToken.type = VAR;
 		} else if (substreq(current, "pi", &current)) {
 			newToken = (Token){
 				.type = OPERAND,

@@ -13,10 +13,6 @@ const char *DELIM_STR_TABLE[NUM_DELIMS] = {"(", ")", ","};
 static_assert(NUM_INTRINSICS == 18, "Exhaustive handling of intrinsics in INTRINSIC_STR_TABLE");
 const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS] = {"abs", "sqrt", "cbrt", "ln", "log10", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "rand", "floor", "ceil", "ldexp", "min", "max"};
 
-#define VAR_CAP 1024
-short numVars = 0;
-struct Var varTable[VAR_CAP] = {0};
-
 TokenStack TokenStack_new() {
 	TokenStack stack = {
 		.length = 0,

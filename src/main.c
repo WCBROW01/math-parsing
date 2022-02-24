@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "tokenstack.h"
+#include "vartable.h"
 #include "lexing.h"
 #include "parsing.h"
 #include "eval.h"
@@ -16,8 +17,11 @@ int main(void) {
 	int inputMax = DEFAULT_MAXLEN;
 	bool debugmode = false;
 	bool stackmode = false;
+
 	char *input = malloc(inputMax * sizeof(char));
 	if (input == NULL) return 1;
+
+	VarTable *globalVars = VarTable_new();
 
 	// Seed random number generator with current time
 	srandom(time(NULL));
@@ -61,7 +65,7 @@ int main(void) {
 		}
 
 		if (debugmode) printf("Provided input: %s\n", input);
-		TokenStack lexerOutput = lexInput(beginning);
+		TokenStack lexerOutput = lexInput(beginning, globalVars);
 		TokenStack parserOutput = {0};
 
 		if (debugmode && TokenStack_peek(&lexerOutput).type != ERR) {
@@ -84,7 +88,7 @@ int main(void) {
 		TokenStack_delete(&parserOutput);
 	}
 
-	for (short i = 0; i < numVars; i++) free(varTable[i].name);
+	VarTable_delete(globalVars);
 	free(input);
 	return 0;
 }

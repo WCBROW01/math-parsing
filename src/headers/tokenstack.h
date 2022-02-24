@@ -53,16 +53,11 @@ enum Intrinsic {
 
 extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 
-struct Var {
+typedef struct Var {
 	char *name;
 	short index;
 	Operand_t data;
-};
-
-// This is like the most global global variable ever, sue me.
-#define VAR_CAP 1024
-extern short numVars;
-extern struct Var varTable[VAR_CAP];
+} Var;
 
 enum TokenType {
 	OPERAND,
