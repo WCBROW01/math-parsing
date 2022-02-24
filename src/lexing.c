@@ -51,9 +51,14 @@ static struct Var *searchVars(char *str, char **endptr) {
 }
 
 static bool verifyVar(char *var) {
-	if (var == NULL ||searchTable(var, INTRINSIC_STR_TABLE, NUM_INTRINSICS, NULL) != -1) return false;
+	if (var == NULL) return false;
 	else for (short i = 0; i < numVars; i++) {
 		if (strcmp(var, varTable[i].name) == 0) return false;
+	}
+
+	// Check if the variable name matches any intrinsics
+	for (size_t i = 0; i < NUM_INTRINSICS; i++) {
+		if (strcmp(var, INTRINSIC_STR_TABLE[i]) == 0) return false;
 	}
 
 	// Check for any reserved characters in string (this looks stupid I hate it)
