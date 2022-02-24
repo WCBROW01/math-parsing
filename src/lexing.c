@@ -127,7 +127,7 @@ TokenStack lexInput(char *input) {
 				qsort(varTable, numVars, sizeof(struct Var), compareVars);
 				current += varLength;
 			} else {
-				fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?", varName);
+				fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
 				free(varName);
 				newToken = Token_throwError(1);
 			}
