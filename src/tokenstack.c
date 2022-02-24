@@ -54,6 +54,7 @@ void TokenStack_push(TokenStack *stack, const Token *data) {
 }
 
 Token TokenStack_pop(TokenStack *stack) {
+	assert(stack->length > 0);
 	Token poppedToken = *stack->top--;
 	if (--stack->length % DEFAULT_LENGTH == 0 && stack->length > 0) {
 		Token *newArray = reallocarray(stack->tokens, stack->length, sizeof(Token));
@@ -70,6 +71,7 @@ Token TokenStack_pop(TokenStack *stack) {
 }
 
 Token TokenStack_peek(const TokenStack *stack) {
+	assert(stack->length > 0);
 	return *stack->top;
 }
 

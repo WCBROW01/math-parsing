@@ -76,10 +76,8 @@ int main(void) {
 			TokenStack_print(&parserOutput);
 		}
 
-		long double answer;
-		if (stackmode) answer = evaluateTokenStack(&lexerOutput);
-		else answer = evaluateTokenStack(&parserOutput);
-		printf("%.15Lg\n", answer);
+		if (stackmode) evaluateTokenStack(&lexerOutput);
+		else evaluateTokenStack(&parserOutput);
 
 		destruct:
 		TokenStack_delete(&lexerOutput);

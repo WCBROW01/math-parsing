@@ -8,12 +8,11 @@
 #include "intrinsic.h"
 #include "eval.h"
 
-Operand_t evaluateTokenStack(TokenStack *input) {
+void evaluateTokenStack(TokenStack *input) {
 	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in evaluateTokenStack");
-	if (input->length == 0) return NAN;
 
 	TokenStack evalStack = TokenStack_new();
-	Token result;
+	Token answer;
 
 	for (int i = 0; i < input->length; i++) {
 		switch (input->tokens[i].type) {
@@ -60,9 +59,9 @@ Operand_t evaluateTokenStack(TokenStack *input) {
 	}
 
 	destruct:
-	result = TokenStack_pop(&evalStack);
+	if (evalStack.length > 0) answer = TokenStack_pop(&evalStack);
+	else answer = (Token) {.type = NULL_TOKEN};
 	TokenStack_delete(&evalStack);
 
-	if (result.type == OPERAND) return result.data.operand;
-	else return 0;
+	if (answer.type == OPERAND) printf("%.15Lg\n", answer.data.operand);
 }
