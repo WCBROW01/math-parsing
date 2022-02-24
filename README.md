@@ -23,6 +23,10 @@ Addition, subtraction, multiplication, division, modulus, and exponentiation are
 
 *e* and *pi* will expand into their respective constants in the expression.
 
+### Variables
+
+You are able to declare variables using the let keyword, assign and reassign values to them using ‘=’, and use them within in any mathematical expression. You may not name them the same as any built-in functions or include any operators or delimiters within the name.
+
 ### Built-in functions
 
 | Function      | Output                                                       |
