@@ -9,7 +9,7 @@ typedef struct VarTable VarTable;
 extern VarTable *VarTable_new();
 extern void VarTable_delete(VarTable *table);
 extern Var *VarTable_insert(VarTable *table, char *name);
-extern bool VarTable_remove(VarTable *table, Var *item);
 extern Var *VarTable_search(VarTable *table, char *name);
+extern void Var_delete(Var *item);
 
 #endif

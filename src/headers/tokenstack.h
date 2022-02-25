@@ -55,7 +55,6 @@ extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 
 typedef struct Var {
 	char *name;
-	short index;
 	Operand_t data;
 } Var;
 

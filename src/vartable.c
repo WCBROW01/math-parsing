@@ -49,20 +49,11 @@ Var *VarTable_insert(VarTable *table, char *name) {
 
 	table->data[index] = (Var){
 		.name = name,
-		.index = index,
 		.data = 0
 	};
 
 	table->size++;
 	return &table->data[index];
-}
-
-bool VarTable_remove(VarTable *table, Var *item) {
-	if (&table->data[item->index] == item) {
-		table->data[item->index] = (Var){0};
-		table->size--;
-		return true;
-	} else return false;
 }
 
 Var *VarTable_search(VarTable *table, char *name) {
@@ -76,4 +67,11 @@ Var *VarTable_search(VarTable *table, char *name) {
 	}
 
 	return NULL;
+}
+
+void Var_delete(Var *item) {
+	if (item != NULL) {
+		free(item->name);
+		*item = (Var){0};
+	}
 }
