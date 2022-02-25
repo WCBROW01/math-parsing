@@ -23,9 +23,9 @@ static bool substreq(char *str, const char *substr, char **endptr) {
 	return eq;
 }
 
-static int searchTable(char *str, const char *table[], size_t length, char **endptr) {
+static int searchTable(char *str, const char *table[], int length, char **endptr) {
 	bool found = false;
-	unsigned int index;
+	int index;
 
 	for (index = 0; index < length; index++) {
 		if (substreq(str, table[index], endptr)) {
@@ -145,6 +145,8 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 					.data.operator = searchTable(current, OPERATOR_STR_TABLE, NUM_OPERATORS, &current)
 				};
 			}
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
 		} else if ((newToken.data.operator = searchTable(current, OPERATOR_STR_TABLE, NUM_OPERATORS, &current)) != -1) {
 			newToken.type = OPERATOR;
 		} else if ((newToken.data.delim = searchTable(current, DELIM_STR_TABLE, NUM_DELIMS, &current)) != -1) {
@@ -153,6 +155,7 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 			newToken.type = VAR;
 		} else if ((newToken.data.intrinsic = searchTable(current, INTRINSIC_STR_TABLE, NUM_INTRINSICS, &current)) != -1) {
 			newToken.type = INTRINSIC;
+#pragma GCC diagnostic pop
 		} else if (substreq(current, "pi", &current)) {
 			newToken = (Token){
 				.type = OPERAND,
