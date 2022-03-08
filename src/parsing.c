@@ -87,7 +87,7 @@ TokenStack parseTokens(TokenStack *input) {
 							TokenStack_pop(&operatorStack);
 
 							// Check for intrinsic and pop it into the output stack if one exists
-							if (TokenStack_peek(&operatorStack).type == INTRINSIC) {
+							if (operatorStack.length > 0 && TokenStack_peek(&operatorStack).type == INTRINSIC) {
 								Token intrinsic = TokenStack_pop(&operatorStack);
 								TokenStack_push(&outputStack, &intrinsic);
 							}
