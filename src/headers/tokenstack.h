@@ -3,6 +3,9 @@
 
 #define DEFAULT_LENGTH 64
 
+#define VAR_INIT 0b01
+#define VAR_CONST 0b10
+
 // Types of tokens
 typedef long double Operand_t;
 typedef int Err_t;
@@ -56,6 +59,7 @@ extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 typedef struct Var {
 	char *name;
 	Operand_t data;
+	char flags;
 } Var;
 
 enum TokenType {

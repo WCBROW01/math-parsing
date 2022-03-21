@@ -1,10 +1,18 @@
 #include <assert.h>
+#include <stdio.h>
 #include <math.h>
 
 #include "tokenstack.h"
 #include "operator.h"
 
 static Token operator_assign(Token a, Token b) {
+	if (a.data.var->flags & VAR_CONST && a.data.var->flags & VAR_INIT) {
+		fprintf(stderr, "Attempted to reassign a constant.\n");
+		return Token_throwError(6);
+	} else if (!(a.data.var->flags & VAR_INIT)) {
+		a.data.var->flags |= VAR_INIT;
+	}
+
 	a.data.var->data = b.data.operand;
 	return b;
 }

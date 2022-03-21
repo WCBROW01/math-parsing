@@ -20,7 +20,13 @@ void evaluateTokenStack(TokenStack *input) {
 			Token b = TokenStack_pop(&evalStack);
 			Token a = TokenStack_pop(&evalStack);
 			Token result = OPERATOR_FUNCS[input->tokens[i].data.operator](a, b);
-			if (a.type != VAR) TokenStack_push(&evalStack, &result);
+
+			if (result.type == ERR) {
+				fprintf(stderr, "Error %d encountered during evaluation.\n", result.data.err);
+				goto destruct;
+			} else if (a.type != VAR) {
+				TokenStack_push(&evalStack, &result);
+			}
 			break;
 		case OPERAND:
 			TokenStack_push(&evalStack, &input->tokens[i]);
@@ -46,7 +52,7 @@ void evaluateTokenStack(TokenStack *input) {
 			// Do nothing, these are skipped in RPN.
 			break;
 		case ERR:
-			printf("Error %d encountered during evaluation.\n", input->tokens[i].data.err);
+			fprintf(stderr, "Error %d encountered during evaluation.\n", input->tokens[i].data.err);
 			goto destruct;
 		case NULL_TOKEN:
 			fprintf(stderr, "Null token enountered during evaluation.\n");

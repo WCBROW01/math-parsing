@@ -74,6 +74,31 @@ static bool verifyVar(VarTable *table, char *var) {
 	return true;
 }
 
+static Token createVar(VarTable *table, char *str, char **endptr) {
+	size_t varLength;
+
+	while (*str == ' ') str++; // Skip spaces
+	for (varLength = 1; str[varLength] != ' '; varLength++);
+	char *varName = malloc(varLength + 1);
+	strncpy(varName, str, varLength + 1);
+	varName[varLength] = '\0';
+
+	if (verifyVar(table, varName)) {
+		Var *newVar = VarTable_insert(table, varName);
+		Token newToken = {
+			.type = VAR,
+			.data.var = newVar
+		};
+
+		*endptr += varLength;
+		return newToken;
+	} else {
+		fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
+		free(varName);
+		return Token_throwError(1);
+	}
+}
+
 TokenStack lexInput(char *input, VarTable *globalVars) {
 	static_assert(NUM_TYPES == 7, "Exhaustive handling of token types in lexInput");
 	char *current = input;
@@ -98,27 +123,10 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 			current++;
 			continue;
 		} else if (substreq(current, "let ", &current)) {
-			size_t varLength;
-
-			while (*current == ' ') current++; // Skip spaces
-			for (varLength = 1; current[varLength] != ' '; varLength++);
-			char *varName = malloc(varLength + 1);
-			strncpy(varName, current, varLength + 1);
-			varName[varLength] = '\0';
-
-			if (verifyVar(globalVars, varName)) {
-				Var *newVar = VarTable_insert(globalVars, varName);
-				newToken = (Token){
-					.type = VAR,
-					.data.var = newVar
-				};
-
-				current += varLength;
-			} else {
-				fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
-				free(varName);
-				newToken = Token_throwError(1);
-			}
+			newToken = createVar(globalVars, current, &current);
+		} else if (substreq(current, "const ", &current)) {
+			newToken = createVar(globalVars, current, &current);
+			newToken.data.var->flags |= VAR_CONST;
 		} else if (*current == '=') {
 			if (!variableAssigned) {
 				newToken = (Token){
