@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "arena.h"
 #include "tokenstack.h"
 #include "vartable.h"
 
@@ -10,22 +11,23 @@
 
 struct VarTable {
 	Var data[VAR_CAP];
+	Arena *arena;
 	short size;
 };
 
 VarTable *VarTable_new() {
-	VarTable *newTable = malloc(sizeof(VarTable));
+	Arena *newArena = Arena_new_dynamic(2 * sizeof(VarTable));
+	VarTable *newTable = Arena_alloc(newArena, sizeof(VarTable));
+
 	memset(newTable->data, 0, VAR_CAP * sizeof(Var));
+	newTable->arena = newArena;
 	newTable->size = 0;
 
 	return newTable;
 }
 
 void VarTable_delete(VarTable *table) {
-	if (table != NULL) {
-		for (short i = 0; i < VAR_CAP; i++) free(table->data[i].name);
-		free(table);
-	}
+	if (table != NULL) Arena_delete(table->arena);
 }
 
 static short VarTable_hash(char *name) {
@@ -69,9 +71,6 @@ Var *VarTable_search(VarTable *table, char *name) {
 	return NULL;
 }
 
-void Var_delete(Var *item) {
-	if (item != NULL) {
-		free(item->name);
-		*item = (Var){0};
-	}
+Arena *VarTable_getArena(VarTable *table) {
+	return table->arena;
 }

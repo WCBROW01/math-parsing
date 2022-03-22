@@ -58,8 +58,8 @@ extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 
 typedef struct Var {
 	char *name;
-	Operand_t data;
 	char flags;
+	Operand_t data;
 } Var;
 
 enum TokenType {
