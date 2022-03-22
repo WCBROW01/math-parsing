@@ -6,6 +6,7 @@
 #include <ctype.h>
 #include <math.h>
 
+#include "arena.h"
 #include "tokenstack.h"
 #include "vartable.h"
 #include "lexing.h"
@@ -76,11 +77,12 @@ static bool verifyVar(VarTable *table, char *var) {
 
 static Token createVar(VarTable *table, char *str, char **endptr) {
 	size_t varLength;
+	Arena *tableArena = VarTable_getArena(table);
 
 	while (*str == ' ') str++; // Skip spaces
 	for (varLength = 1; str[varLength] != ' '; varLength++);
-	char *varName = malloc(varLength + 1);
-	strncpy(varName, str, varLength + 1);
+	char *varName = Arena_alloc(tableArena, varLength + 1);
+	strncpy(varName, str, varLength);
 	varName[varLength] = '\0';
 
 	if (verifyVar(table, varName)) {
@@ -164,17 +166,6 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 		} else if ((newToken.data.intrinsic = searchTable(current, INTRINSIC_STR_TABLE, NUM_INTRINSICS, &current)) != -1) {
 			newToken.type = INTRINSIC;
 #pragma GCC diagnostic pop
-		} else if (substreq(current, "pi", &current)) {
-			newToken = (Token){
-				.type = OPERAND,
-				.data.operand = M_PI
-			};
-		} else if (*current == 'e') {
-			current++;
-			newToken = (Token){
-				.type = OPERAND,
-				.data.operand = M_E
-			};
 		} else {
 			// Invalid token while lexing.
 			fprintf(stderr, "Invalid input provided.\n");

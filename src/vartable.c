@@ -49,10 +49,8 @@ Var *VarTable_insert(VarTable *table, char *name) {
 		index %= VAR_CAP;
 	}
 
-	table->data[index] = (Var){
-		.name = name,
-		.data = 0
-	};
+	table->data[index].name = name;
+	table->data[index].data = 0;
 
 	table->size++;
 	return &table->data[index];
