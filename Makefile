@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=-Wall -Wextra -I$(HEADER_DIR) -O2 -g
+CFLAGS=-Wall -Wextra -I$(HEADER_DIR) -O2
 HEADER_DIR=src/headers
 
 SRC=$(wildcard src/*.c)
