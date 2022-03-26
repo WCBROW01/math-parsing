@@ -56,9 +56,10 @@ enum Intrinsic {
 
 extern const char *INTRINSIC_STR_TABLE[NUM_INTRINSICS];
 
+// Type for variables, this should rarely be stored outside of a var table.
 typedef struct Var {
 	char *name;
-	char flags;
+	unsigned char flags;
 	Operand_t data;
 } Var;
 
@@ -82,7 +83,7 @@ union TokenData {
 	Err_t err;
 };
 
-// Struct for operators and operands (with a boolean to differentiate)
+// Struct for tokens, with an enum to denote type and a union containing the token itself.
 typedef struct Token {
 	enum TokenType type;
 	union TokenData data;
