@@ -64,6 +64,7 @@ void Arena_delete(Arena *arena) {
 	free(arena);
 }
 
+#ifdef ENABLE_DIAG
 static void print_diagnostic(Arena *arena, size_t size) {
 	fprintf(stderr, "Diagnostic info:\n");
 	fprintf(stderr, "Arena size: %zu bytes\n", arena->size);
@@ -71,9 +72,13 @@ static void print_diagnostic(Arena *arena, size_t size) {
 	fprintf(stderr, "New block size: %zu bytes\n", size);
 	fprintf(stderr, "New size upon success: %zu bytes\n", arena->next_block + align(size) - Arena_start(arena));
 }
+#endif
 
 static inline void *Arena_init_block(Arena *arena, size_t size) {
-	void *new_block = arena->next_block;
+	/* Store a pointer to the last block in the arena so that the last state of
+	 * the arena can be restored if this block is freed. */
+	void *new_block = arena->next_block + sizeof(void*);
+	*(void**) (new_block - sizeof(void*)) = arena->last_block;
 	arena->last_block = new_block;
 	arena->next_block += align(size);
 	return new_block;
@@ -92,12 +97,28 @@ void *Arena_alloc(Arena *arena, size_t size) {
 				return Arena_alloc(arena->next_region, size);
 			}
 		} else {
+#ifdef ENABLE_DIAG
 			fprintf(stderr, "Allocation too large. You've attempted to allocate a block of memory past the end of the arena.\n");
 			print_diagnostic(arena, size);
+#endif
 			return NULL;
 		}
 	} else {
 		return Arena_init_block(arena, size);
+	}
+}
+
+/* Will free the last block of memory allocated in the arena if the pointer
+ * passed in points to it. Otherwise, it does nothing.
+ * Returns 1 if the block was freed, 0 if an invalid pointer was given. */
+int Arena_free(Arena *arena, void *ptr) {
+	if (arena->last_block == NULL || ptr != arena->last_block) {
+		return 0;
+	} else {
+		ptr -= sizeof(void*);
+		arena->next_block = ptr;
+		arena->last_block = *(void**) ptr;
+		return 1;
 	}
 }
 
@@ -123,8 +144,10 @@ void *Arena_realloc(Arena *arena, void *ptr, size_t size) {
 			if (arena->dynamic) {
 				return Arena_copy(arena, ptr, size);
 			} else {
+#ifdef ENABLE_DIAG
 				fprintf(stderr, "Allocation too large. You've attempted to allocate a block of memory past the end of the arena.\n");
 				print_diagnostic(arena, size - (arena->next_block - arena->last_block));
+#endif
 				return NULL;
 			}
 		} else {
