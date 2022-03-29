@@ -96,7 +96,6 @@ static Token createVar(VarTable *table, char *str, char **endptr) {
 		return newToken;
 	} else {
 		fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
-		Arena_free(tableArena, varName);
 		return Token_throwError(1);
 	}
 }
