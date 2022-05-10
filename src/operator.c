@@ -9,7 +9,7 @@ static Token operator_assign(Token a, Token b) {
 	// Variable is an already initialized constant
 	if (a.data.var->flags & VAR_CONST && a.data.var->flags & VAR_INIT) {
 		fprintf(stderr, "Attempted to reassign a constant.\n");
-		return Token_throwError(6);
+		return Token_throwError(ERR_REASSIGNED_CONSTANT);
 	} else {
 		a.data.var->flags |= VAR_INIT;
 		a.data.var->data = b.data.operand;

@@ -8,7 +8,6 @@
 
 // Types of tokens
 typedef long double Operand_t;
-typedef int Err_t;
 
 enum Operator {
 	ASSIGN,
@@ -63,6 +62,14 @@ typedef struct Var {
 	Operand_t data;
 } Var;
 
+enum Err {
+	ERR_INVALID_VAR,
+	ERR_INVALID_INPUT,
+	ERR_INVALID_TOKEN,
+	ERR_REASSIGNED_CONSTANT,
+	ERR_FAILED_VAR_ALLOC
+};
+
 enum TokenType {
 	OPERAND,
 	OPERATOR,
@@ -80,7 +87,7 @@ union TokenData {
 	enum Delim delim;
 	enum Intrinsic intrinsic;
 	struct Var *var;
-	Err_t err;
+	enum Err err;
 };
 
 // Struct for tokens, with an enum to denote type and a union containing the token itself.
@@ -104,6 +111,6 @@ extern Token TokenStack_peek(const TokenStack *stack);
 
 extern void TokenStack_print(const TokenStack *stack);
 
-extern Token Token_throwError(int errorlevel);
+extern Token Token_throwError(enum Err errorlevel);
 
 #endif

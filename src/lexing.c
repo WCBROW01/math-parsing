@@ -81,12 +81,19 @@ static Token createVar(VarTable *table, char *str, char **endptr) {
 
 	while (*str == ' ') str++; // Skip spaces
 	for (varLength = 1; str[varLength] != ' '; varLength++);
-	char *varName = Arena_alloc(tableArena, varLength + 1);
+	char varName[varLength + 1];
 	strncpy(varName, str, varLength);
 	varName[varLength] = '\0';
 
 	if (verifyVar(table, varName)) {
-		Var *newVar = VarTable_insert(table, varName);
+		char *entry = Arena_alloc(tableArena, varLength + 1);
+		if (!entry) {
+			fprintf(stderr, "Failed to allocate memory for new variable %s!\n", varName);
+			return Token_throwError(ERR_FAILED_VAR_ALLOC);
+		}
+
+		memcpy(entry, varName, varLength + 1);
+		Var *newVar = VarTable_insert(table, entry);
 		Token newToken = {
 			.type = VAR,
 			.data.var = newVar
@@ -96,7 +103,7 @@ static Token createVar(VarTable *table, char *str, char **endptr) {
 		return newToken;
 	} else {
 		fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
-		return Token_throwError(1);
+		return Token_throwError(ERR_INVALID_VAR);
 	}
 }
 
@@ -139,7 +146,7 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 				current++;
 			} else {
 				fprintf(stderr, "Attempted to assign multiple variables in one statement. This is not implemented.\n");
-				newToken = Token_throwError(1);
+				newToken = Token_throwError(ERR_INVALID_VAR);
 			}
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
@@ -168,7 +175,7 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 		} else {
 			// Invalid token while lexing.
 			fprintf(stderr, "Invalid input provided.\n");
-			newToken = Token_throwError(2);
+			newToken = Token_throwError(ERR_INVALID_INPUT);
 		}
 
 		TokenStack_push(&outputStack, &newToken);

@@ -59,7 +59,7 @@ void evaluateTokenStack(TokenStack *input) {
 			exit(1);
 		default:
 			fprintf(stderr, "Invalid token encountered during evaluation.\n");
-			Token errorToken = Token_throwError(5);
+			Token errorToken = Token_throwError(ERR_INVALID_TOKEN);
 			TokenStack_push(&evalStack, &errorToken);
 		}
 	}

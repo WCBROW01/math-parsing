@@ -105,7 +105,7 @@ void TokenStack_print(const TokenStack *stack) {
 	printf("\n");
 }
 
-Token Token_throwError(Err_t errorlevel) {
+Token Token_throwError(enum Err errorlevel) {
 	Token error = {
 		.type = ERR,
 		.data.err = errorlevel
