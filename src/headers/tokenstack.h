@@ -37,6 +37,7 @@ enum Intrinsic {
 	CBRT,
 	LN,
 	LOG10,
+	LOG2,
 	SIN,
 	COS,
 	TAN,

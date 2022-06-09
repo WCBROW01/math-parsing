@@ -4,6 +4,8 @@
 #include <string.h>
 #include <limits.h>
 #include <time.h>
+
+#define __USE_GNU
 #include <math.h>
 
 #include "tokenstack.h"
@@ -26,11 +28,11 @@ int main(void) {
 
 	// Set up pi and e as constants
 	Var *const_pi = VarTable_insert(globalVars, "pi");
-	const_pi->data = M_PI;
+	const_pi->data = M_PIl;
 	const_pi->flags = VAR_INIT | VAR_CONST;
 
 	Var *const_e = VarTable_insert(globalVars, "e");
-	const_e->data = M_E;
+	const_e->data = M_El;
 	const_e->flags = VAR_INIT | VAR_CONST;
 
 	// Seed random number generator with current time

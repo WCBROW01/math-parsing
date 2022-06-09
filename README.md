@@ -36,6 +36,7 @@ You are able to declare variables using the let keyword, assign and reassign val
 | cbrt(x)       | The cube root of x                                           |
 | ln(x)         | The natural logarithm (log<sub>e</sub>) of x                 |
 | log10(x)      | The base 10 logarithm of x                                   |
+| log2(x)       | The base 2 logarithm of x                                    |
 | sin(x)        | The sine of x                                                |
 | cos(x)        | The cosine of x                                              |
 | tan(x)        | The tangent of x                                             |
