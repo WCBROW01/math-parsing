@@ -64,7 +64,10 @@ int main(void) {
 
 		// If the only input is a newline, do nothing and give a new prompt.
 		if (*beginning == '\0') continue;
-		else if (strncmp(input, "debugmode", 9) == 0) {
+		else if (strncmp(input, "clear", 5) == 0) {
+			printf("\x1b[H\x1b[2J");
+			continue;
+		} else if (strncmp(input, "debugmode", 9) == 0) {
 			// Toggle debug mode
 			debugmode ^= 1;
 			printf("Debug mode: %s.\n", debugmode ? "On" : "Off");
