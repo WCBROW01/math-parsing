@@ -135,19 +135,6 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 		} else if (substreq(current, "const ", &current)) {
 			newToken = createVar(globalVars, current, &current);
 			newToken.data.var->flags |= VAR_CONST;
-		} else if (*current == '=') {
-			if (!variableAssigned) {
-				newToken = (Token){
-					.type = OPERATOR,
-					.data.operator = ASSIGN
-				};
-
-				variableAssigned = true;
-				current++;
-			} else {
-				fprintf(stderr, "Attempted to assign multiple variables in one statement. This is not implemented.\n");
-				newToken = Token_throwError(ERR_INVALID_VAR);
-			}
 		} else if (*current == '+' || *current == '-') {
 			// Checks if the + or - is an operator or part of an operand
 			if (lastToken.type == OPERATOR || lastToken.type == NULL_TOKEN || (lastToken.type == DELIM && lastToken.data.delim != CLOSE_PAREN)) {
@@ -165,6 +152,15 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 #pragma GCC diagnostic ignored "-Wsign-compare"
 		} else if ((newToken.data.operator = searchTable(current, OPERATOR_STR_TABLE, NUM_OPERATORS, &current)) != -1) {
 			newToken.type = OPERATOR;
+			if (newToken.data.operator == ASSIGN) {
+				if (!variableAssigned) {
+					variableAssigned = true;
+					current++;
+				} else {
+					fprintf(stderr, "Attempted to assign multiple variables in one statement. This is not implemented.\n");
+					newToken = Token_throwError(ERR_INVALID_VAR);
+				}
+			}
 		} else if ((newToken.data.delim = searchTable(current, DELIM_STR_TABLE, NUM_DELIMS, &current)) != -1) {
 			newToken.type = DELIM;
 		} else if ((newToken.data.var = searchVars(globalVars, current, &current)) != NULL) {

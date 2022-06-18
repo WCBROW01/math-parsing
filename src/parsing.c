@@ -5,8 +5,8 @@
 #include "tokenstack.h"
 #include "parsing.h"
 
-static_assert(NUM_OPERATORS == 7, "Exhaustive handling of operators in OPERATOR_PRECEDENCE");
-static const int OPERATOR_PRECEDENCE[NUM_OPERATORS] = {0, 1, 1, 2, 2, 2, 3};
+static_assert(NUM_OPERATORS == 13, "Exhaustive handling of operators in OPERATOR_PRECEDENCE");
+static const int OPERATOR_PRECEDENCE[NUM_OPERATORS] = {2, 2, 3, 3, 3, 4, 1, 1, 1, 1, 1, 1, 0};
 
 static void pushOperator(TokenStack *operatorStack, TokenStack *outputStack, Token *newOperator) {
 	/* If anything in the operator stack has a higher precedence,

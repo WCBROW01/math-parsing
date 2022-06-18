@@ -19,13 +19,17 @@ make
 
 Addition, subtraction, multiplication, division, modulus, and exponentiation are all supported. Parentheses are supported and the order of operations is honored, so anything that works in a basic calculator should work properly. Expressions like 2(1) and 2sqrt(2) are supported and will imply multiplication exactly as expected.
 
+### Comparison operators
+
+All standard comparison operators seen in most programming languages are supported. There are operators for equality, inequality, less than, greater than, less or equal, and greater or equal. A comparison will return 0 if false and 1 if true. A proper boolean type may be added later.
+
 ### Mathematical constants
 
 *e* and *pi* will expand into their respective constants in the expression.
 
 ### Variables
 
-You are able to declare variables using the let keyword, assign and reassign values to them using ‘=’, and use them within in any mathematical expression. You may not name them the same as any built-in functions or include any operators or delimiters within the name.
+You are able to declare variables using the let keyword, assign and reassign values to them using ‘=’, and use them within in any mathematical expression. You may not name them the same as any built-in functions or include any operators or delimiters within the name. You can also define constants using the const keyword.
 
 ### Built-in functions
 

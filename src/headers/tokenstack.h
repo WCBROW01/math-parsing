@@ -10,13 +10,21 @@
 typedef long double Operand_t;
 
 enum Operator {
-	ASSIGN,
+	// Arithmetic operators
 	ADD,
 	SUB,
 	MUL,
 	DIV,
 	MOD,
 	EXP,
+	// Comparison operators
+	EQ,
+	NEQ,
+	LEQ,
+	GEQ,
+	LT,
+	GT,
+	ASSIGN,
 	NUM_OPERATORS
 };
 

@@ -59,5 +59,47 @@ static Token operator_pow(Token a, Token b) {
 	};
 }
 
-static_assert(NUM_OPERATORS == 7, "Exhaustive handling of operators in OPERATOR_FUNCS");
-Token (*OPERATOR_FUNCS[NUM_OPERATORS])(Token, Token) = {operator_assign, operator_add, operator_sub, operator_mul, operator_div, operator_mod, operator_pow};
+static Token operator_eq(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand == b.data.operand
+	};
+}
+
+static Token operator_neq(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand != b.data.operand
+	};
+}
+
+static Token operator_leq(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand <= b.data.operand
+	};
+}
+static Token operator_geq(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand >= b.data.operand
+	};
+}
+
+static Token operator_lt(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand < b.data.operand
+	};
+}
+
+static Token operator_gt(Token a, Token b) {
+	return (Token){
+		.type = OPERAND,
+		.data.operand = a.data.operand > b.data.operand
+	};
+}
+
+static_assert(NUM_OPERATORS == 13, "Exhaustive handling of operators in OPERATOR_FUNCS");
+Token (*OPERATOR_FUNCS[NUM_OPERATORS])(Token, Token) = {operator_add, operator_sub, operator_mul, operator_div, operator_mod, operator_pow,
+	operator_eq, operator_neq, operator_leq, operator_geq, operator_lt, operator_gt, operator_assign};
