@@ -25,27 +25,25 @@ void evaluateTokenStack(TokenStack *input) {
 				fprintf(stderr, "Error %d encountered during evaluation.\n", result.data.err);
 				goto destruct;
 			} else if (a.type != VAR) {
-				TokenStack_push(&evalStack, &result);
+				TokenStack_push(&evalStack, result);
 			}
 			break;
 		case OPERAND:
-			TokenStack_push(&evalStack, &input->tokens[i]);
+			TokenStack_push(&evalStack, input->tokens[i]);
 			break;
 		case INTRINSIC:
 			INTRINSIC_FUNCS[input->tokens[i].data.intrinsic](&evalStack);
 			break;
 		case VAR:
 			// Token is being used for assignment
-			if (i == 0 && input->top->type == OPERATOR && input->top->data.operator == ASSIGN) {
-				TokenStack_push(&evalStack, &input->tokens[i]);
+			if (i == 0 && TokenStack_peek(input).type == OPERATOR && TokenStack_peek(input).data.operator == ASSIGN) {
+				TokenStack_push(&evalStack, input->tokens[i]);
 			// Token is being used as an operand
 			} else {
-				Token operand = {
+				TokenStack_push(&evalStack, (Token) {
 					.type = OPERAND,
 					.data.operand = input->tokens[i].data.var->data
-				};
-
-				TokenStack_push(&evalStack, &operand);
+				});
 			}
 			break;
 		case DELIM:
@@ -58,9 +56,7 @@ void evaluateTokenStack(TokenStack *input) {
 			fprintf(stderr, "Null token enountered during evaluation.\n");
 			exit(1);
 		default:
-			fprintf(stderr, "Invalid token encountered during evaluation.\n");
-			Token errorToken = Token_throwError(ERR_INVALID_TOKEN);
-			TokenStack_push(&evalStack, &errorToken);
+			TokenStack_push(&evalStack, Token_throwError(ERR_INVALID_TOKEN));
 		}
 	}
 

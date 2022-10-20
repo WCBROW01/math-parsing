@@ -76,8 +76,13 @@ enum Err {
 	ERR_INVALID_INPUT,
 	ERR_INVALID_TOKEN,
 	ERR_REASSIGNED_CONSTANT,
-	ERR_FAILED_VAR_ALLOC
+	ERR_FAILED_VAR_ALLOC,
+	ERR_NOT_IMPLEMENTED,
+	ERR_INVALID_EXPR,
+	NUM_ERRORS
 };
+
+extern const char *ERR_STR_TABLE[NUM_ERRORS];
 
 enum TokenType {
 	OPERAND,
@@ -107,19 +112,19 @@ typedef struct Token {
 
 typedef struct TokenStack {
 	int length;
-	Token *top;
 	Token *tokens;
 } TokenStack;
 
 extern TokenStack TokenStack_new();
 extern void TokenStack_delete(TokenStack *stack);
 
-extern void TokenStack_push(TokenStack *stack, const Token *data);
+extern void TokenStack_push(TokenStack *stack, const Token data);
 extern Token TokenStack_pop(TokenStack *stack);
 extern Token TokenStack_peek(const TokenStack *stack);
 
 extern void TokenStack_print(const TokenStack *stack);
 
-extern Token Token_throwError(enum Err errorlevel);
+// Can accept arguments if applicable to the error message.
+extern Token Token_throwError(enum Err errorlevel, ...);
 
 #endif

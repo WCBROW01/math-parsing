@@ -88,8 +88,7 @@ static Token createVar(VarTable *table, char *str, char **endptr) {
 	if (verifyVar(table, varName)) {
 		char *entry = Arena_alloc(tableArena, varLength + 1);
 		if (!entry) {
-			fprintf(stderr, "Failed to allocate memory for new variable %s!\n", varName);
-			return Token_throwError(ERR_FAILED_VAR_ALLOC);
+			return Token_throwError(ERR_FAILED_VAR_ALLOC, varName);
 		}
 
 		memcpy(entry, varName, varLength + 1);
@@ -102,8 +101,7 @@ static Token createVar(VarTable *table, char *str, char **endptr) {
 		*endptr += varLength;
 		return newToken;
 	} else {
-		fprintf(stderr, "Unable to create new variable \"%s\".\nDoes it use reserved words or already exist?\n", varName);
-		return Token_throwError(ERR_INVALID_VAR);
+		return Token_throwError(ERR_INVALID_VAR, varName);
 	}
 }
 
@@ -125,7 +123,6 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 		if (isdigit(*current) || *current == '.') {
 			// This condition creates an infinite loop if not caught.
 			if (*current == '.' && !isdigit(current[1])) {
-				fprintf(stderr, "Invalid input provided.\n");
 				newToken = Token_throwError(ERR_INVALID_INPUT);
 			} else {
 				newToken = (Token){
@@ -163,8 +160,7 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 					variableAssigned = true;
 					current++;
 				} else {
-					fprintf(stderr, "Attempted to assign multiple variables in one statement. This is not implemented.\n");
-					newToken = Token_throwError(ERR_INVALID_VAR);
+					newToken = Token_throwError(ERR_NOT_IMPLEMENTED, "Attempted to assign multiple variables in one statement");
 				}
 			}
 		} else if ((newToken.data.delim = searchTable(current, DELIM_STR_TABLE, NUM_DELIMS, &current)) != -1) {
@@ -176,11 +172,10 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 #pragma GCC diagnostic pop
 		} else {
 			// Invalid token while lexing.
-			fprintf(stderr, "Invalid input provided.\n");
 			newToken = Token_throwError(ERR_INVALID_INPUT);
 		}
 
-		TokenStack_push(&outputStack, &newToken);
+		TokenStack_push(&outputStack, newToken);
 		lastToken = newToken;
 	}
 

@@ -6,11 +6,10 @@
 #include "intrinsic.h"
 
 static void pushOperand(TokenStack *stack, Operand_t operand) {
-	Token newToken = {
+	TokenStack_push(stack, (Token) {
 		.type = OPERAND,
 		.data.operand = operand
-	};
-	TokenStack_push(stack, &newToken);
+	});
 }
 
 static void intrinsic_abs(TokenStack *stack) {
