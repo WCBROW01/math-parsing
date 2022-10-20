@@ -4,9 +4,9 @@ HEADER_DIR=src/headers
 
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
+LDFLAGS=-lm
 
 calculator: $(OBJ)
-	$(CC) $(CFLAGS) $^ -o $@ -lm
 
 clean:
 	rm -f $(OBJ)
