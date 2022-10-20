@@ -122,11 +122,17 @@ TokenStack lexInput(char *input, VarTable *globalVars) {
 
 		Token newToken; // Will be populated in this process
 
-		if (isdigit(*current)) {
-			newToken = (Token){
-				.type = OPERAND,
-				.data.operand = strtold(current, &current)
-			};
+		if (isdigit(*current) || *current == '.') {
+			// This condition creates an infinite loop if not caught.
+			if (*current == '.' && !isdigit(current[1])) {
+				fprintf(stderr, "Invalid input provided.\n");
+				newToken = Token_throwError(ERR_INVALID_INPUT);
+			} else {
+				newToken = (Token){
+					.type = OPERAND,
+					.data.operand = strtold(current, &current)
+				};
+			}
 		} else if (*current == ' ') {
 			current++;
 			continue;
